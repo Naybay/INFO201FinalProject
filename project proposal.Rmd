@@ -1,0 +1,56 @@
+---
+title: "Project Proposal: Energy Efficiency Analysis in Industrial Sectors"
+author: "Your Name(s)"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Data and Audience
+
+### Target Audience
+This analysis is aimed at industry stakeholders, environmental policymakers, and researchers focusing on energy and operational efficiency in the industrial sector. This data will be visualized to help Industrial Assessment Center (IAC) programs and other organizations that could utilize this data.
+
+### Source
+The dataset is obtained from the IAC (Industrial Assessment Centers) database. [IAC Database](https://iac.university/storage/IAC_Database.zip)
+
+### Description
+The dataset is obtained from the IAC database, hosted on the [IAC website](iac.university). It includes data from over 21,000 assessments and over 158,000 recommendations for energy savings.
+### Access
+ The data is publicly available for download in a zipped Excel format from the IAC website.
+
+### Background
+The dataset contains valuable insights on potential energy savings and cost reductions across various industries. The IAC has a rich history of helping industries reduce energy consumption while increasing productivity, making this an important area of study.
+
+### Research Questions
+- Which industrial sectors show the most potential for energy savings?
+- What are the common characteristics of industries that successfully implement energy-saving measures?
+- How do geographic factors influence energy efficiency recommendations?
+
+## Technical Description
+
+### Data Input
+Data will be automatically downloaded and imported from the Excel files from this [link](https://iac.university/storage/IAC_Database.zip).
+
+### Data Processing
+Necessary transformations include data cleaning, handling missing values, and categorizing recommendations by type and industry.
+
+### Libraries
+R packages like `dplyr` for data manipulation and `ggplot2` for visualization.
+
+### Analysis and Tools
+- **Statistical Analysis**: Explore correlations between industry characteristics and the success of implemented recommendations.
+- **Visualization**: Graphical presentations of energy savings per sector, recommendation uptake rates, and geographical distribution of data.
+
+### Challenges
+Anticipated challenges include handling the large size of the dataset, ensuring the integrity of historical data, and deriving actionable insights from diverse industrial practices.
+
+## Group Work Dynamics
+
+### Communication
+Our group will use Discord for daily updates and Zoom for meetings to discuss progress and challenges.
+
+### Task Division
+Tasks will be divided based on individual expertise: data cleaning, analysis, visualization, and report writing.
+
+### Potential Issues
+Differences in schedules may affect coordination. We plan to set flexible roles and deadlines to accommodate these differences.
