@@ -1,6 +1,6 @@
 ---
 title: "Project Proposal: Energy Efficiency Analysis in Industrial Sectors"
-author: "Your Name(s)"
+author: "Nathan Holterhoff, Anthony Liu, Taylor Kelly"
 date: "`r Sys.Date()`"
 output: html_document
 ---
@@ -11,10 +11,11 @@ output: html_document
 This analysis is aimed at industry stakeholders, environmental policymakers, and researchers focusing on energy and operational efficiency in the industrial sector. This data will be visualized to help Industrial Assessment Center (IAC) programs and other organizations that could utilize this data.
 
 ### Source
-The dataset is obtained from the IAC (Industrial Assessment Centers) database. [IAC Database](https://iac.university/storage/IAC_Database.zip)
+The dataset is obtained from the IAC (Industrial Assessment Centers) database. [IAC Database](https://iac.university/storage/IAC_Database.zip). It was compiled by the Department of Energy's Office of Manufacturing and Energy Supply Chains.
 
 ### Description
-The dataset is obtained from the IAC database, hosted on the [IAC website](iac.university). It includes data from over 21,000 assessments and over 158,000 recommendations for energy savings.
+The dataset is obtained from the IAC database, hosted on the [IAC website](iac.university). It includes data from over 21,000 assessments and over 158,000 recommendations for energy savings from IACs across the US.It breaks down how many times a recommendation was made, the estimated savings, if it was implemented, the date it was submitted, and many more variables.
+
 ### Access
  The data is publicly available for download in a zipped Excel format from the IAC website.
 

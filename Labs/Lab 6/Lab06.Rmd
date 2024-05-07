@@ -1,0 +1,118 @@
+---
+title: "Lab 6"
+author: "Nathan Holterhoff, Taylor Kelly, Anthony Liu"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(dplyr)
+library(ggplot2)
+```
+
+
+# 1
+
+## 1.1 
+
+```{r}
+
+path <- "covid-scandinavia-wide.csv"
+data <- read_delim(path)
+head(data,3)
+```
+The first 3 lines of data from covid-scandinavia-wide.csv can be seen above. Each row represents a country and a day and counts the number of covid cases and deaths due to covid by that date.
+
+## 1.2
+
+The earliest date is `r min(data$date)` and the last date is `r max(data$date)`.
+
+## 1.3 
+
+```{r}
+data %>%
+  filter(country == 'Denmark') %>%
+  ggplot(aes(x = date, y = Confirmed)) + geom_line()
+```
+
+A line plot is best since the data is measuring confirmed cases and deaths over time and not per day. A scatter plot also works to display this data since it is  given as discrete values.
+
+## 1.4
+
+A log scale would be the best way to display that data in a reasonable format, however, log scales are bad at capturing the magnitude of the epidemic. Logs scales make larger numbers seem small when they are not properly explained.
+
+## 1.5
+
+```{r}
+data %>%
+  filter(country == 'Denmark') %>%
+  ggplot(aes(x = date, y = Confirmed)) + geom_line() + scale_y_log10()
+```
+
+The log plot for Denmark can be seen above.
+## 1.6
+
+```{r}
+data %>%
+  group_by(country) %>%
+  ggplot(aes(x = date, y = Confirmed, col = country)) + geom_line() + scale_y_log10()
+```
+
+The plot for all Scandinavian countries can be seen above.
+
+# 2
+
+## 2.1
+
+```{r}
+data %>%
+  filter(country == 'Denmark') %>%
+  ggplot(aes(x = Deaths, y = Confirmed)) + geom_point(alpha = 0.4,size = .5)
+```
+
+## 2.2 
+
+```{r}
+data %>%
+  group_by(country) %>%
+  ggplot(aes(x = Deaths, y = Confirmed, col = country)) + geom_point(alpha = 0.3,size = .5)
+```
+
+The graph for Denmark can be seen above.
+
+## 2.3
+
+```{r}
+data %>%
+  group_by(country) %>%
+  ggplot(aes(x = Deaths, y = Confirmed, col = country)) + geom_path(alpha = 0.8)
+```
+
+The graphs for all countries can be seen above.
+
+# 3 
+
+## 3.1
+
+```{r}
+
+dates <- c("2020-07-01","2021-01-01","2021-07-01","2022-01-01")
+data %>%
+  filter(date %in% dates) %>%
+  ggplot(aes(x = country, y = Deaths, fill = factor(date))) +
+    geom_bar(stat = "identity", position = "dodge")
+```
+
+## 3.2.a
+
+I do not think this barplot is a good display. We should atleast group by date. Also per capita data would be very good to used instead of total since Sweden has a larger population than the other countries.
+
+## 3.2.b
+
+I think we should use different colors for countires. Currently the bargraph does not tell us about how totals compare between countries on certain dates. We should group the data by date and not country.
+
+## 3.2.c
+
+To improve this graph the data should be grouped by date and not country. The coloring should be by country. By doing this it will be easier to compare statistics between countries.
