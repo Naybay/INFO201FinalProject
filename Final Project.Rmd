@@ -1,0 +1,140 @@
+---
+title: "Final Project"
+author: "Nathan Holterhoff, Taylor Kelly, Anthony Liu"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+
+```
+
+```{r}
+file_path <- 'IAC_Database_20240514.xlsx'
+sheet_names <- excel_sheets(file_path)
+
+# Initialize a list to hold all data frames
+data_frames <- list()
+
+# Loop through each sheet name and read the sheet into a data frame
+for (sheet_name in sheet_names) {
+  data_frames[[sheet_name]] <- read_excel(file_path, sheet = sheet_name, guess_max = 10000)
+}
+
+```
+
+# Abstract
+
+# Introduction
+
+The Industrial Assessment Centers (IAC) program plays a crucial role in helping small and medium-sized manufacturers in the United States enhance their energy efficiency, productivity, and waste reduction efforts. This dataset, sourced from the IAC, offers a comprehensive overview of various assessments, recommendations, and implementations aimed at achieving these goals. In light of the global emphasis on sustainability and efficient resource utilization, analyzing this dataset is both timely and significant. By examining the IAC data, we can uncover patterns and insights that may lead to improved practices in energy management and sustainability within the manufacturing sector.
+
+Existing literature and media highlight the importance of energy efficiency and waste reduction as key components of sustainable manufacturing. The IAC program, funded by the Department of Energy, has been instrumental in providing no-cost technical assessments to small and medium-sized enterprises (SMEs) across the U.S. Studies have shown that the recommendations from IAC assessments result in substantial energy savings and cost reductions for participating manufacturers. Additionally, there is a growing trend toward adopting advanced technologies and practices to enhance efficiency and reduce environmental impact in manufacturing.
+
+Our analysis of the IAC dataset aims to answer several key questions that can provide valuable insights into the program's effectiveness and the broader implications for sustainable manufacturing. Firstly, we seek to identify the most common recommendations provided by IAC assessments and how they vary across different industries. Secondly, we aim to quantify the average cost savings and energy savings achieved per assessment, examining how these metrics vary by industry and region. Thirdly, we will explore the adoption rates of IAC recommendations over time and the factors influencing these rates. Lastly, we will assess the long-term impacts of IAC recommendations on the operational efficiency and sustainability of participating manufacturers.
+
+This analysis is significant for several reasons. It can inform policymakers and stakeholders about the effectiveness of the IAC program and help shape future energy efficiency initiatives. Manufacturers can benefit from understanding which recommendations have been most effective in similar contexts, aiding in the adoption of best practices. Furthermore, this study contributes to broader efforts to reduce the environmental impact of manufacturing industries, aligning with global sustainability goals. By identifying cost-saving measures, this research can also help manufacturers reduce operational costs, thereby improving their competitiveness and financial health. Ultimately, this analysis will provide valuable insights into the IAC program's impact, guiding future improvements and fostering a more sustainable manufacturing sector.
+
+# Data
+
+### Explanation of the Data
+
+The datasets utilized for this project comes from the Industrial Assessment Centers (IAC) program. These datasets include detailed information on the assessments conducted, the recommendations given, and the implementations of those recommendations. It serves as a rich source of information, allowing for an in-depth analysis of energy efficiency practices and their outcomes in the manufacturing sector.
+
+We chose these datasets because they offers valuable insights into the effectiveness of the IAC recommendations. By analyzing this data, we can identify common areas for improvement in manufacturing processes, quantify the financial and energy savings achieved, and inform future energy efficiency initiatives. This analysis is particularly relevant given the increasing emphasis on sustainability and efficient resource utilization in manufacturing.
+
+The data is freely available to the public and can be accessed through the IAC's official website: [IAC Database](https://iac.university/). There are no restrictions on the use of this data, making it accessible for both academic and commercial purposes. The dataset covers various aspects of the IAC assessments, including details about the assessments, the recommendations provided, and the implementation status of those recommendations. The population for this dataset includes small and medium-sized manufacturers across the United States that have received assessments from the IAC program.
+
+While the datasets are comprehensive, they do present some data quality issues. Inconsistent data entry can occur. There might also be missing data for certain assessments or recommendations, and a time lag between when assessments are conducted and when the data is entered into the database, potentially affecting the timeliness of the information. Since the the data has been collected over 30 years, some metrics might have changed within the program and more recent assignments may be more detailed than prior assessments. Despite these issues, the dataset remains a valuable resource for analyzing energy efficiency practices in the manufacturing sector.
+
+The Data comes in 1 .xls file with 6 seperate sheets. The first sheet is a list of anonymous companies with metrics about about their operations and the amount of recommendations that they had. The data can be combined using the `ID` to compare metrics about the companies assessed and the recommendations they receive. Currently no recommendation has company data assoicated with it other than `ID`.
+
+---
+title: "Analysis of IAC Energy Assessment Data"
+author: "Your Name"
+date: "2024-05-15"
+output: html_document
+---
+
+## Introduction to the Data
+
+This report analyzes datasets provided by the Industrial Assessment Centers (IAC) program. These datasets are instrumental for studying energy efficiency practices and their outcomes in the manufacturing sector.
+
+### Source and Data Availability
+
+- **Collector**: Data collected by the Industrial Assessment Centers (IAC), supported by the Department of Energy.
+- **Access**: Data is publicly available and can be accessed here: [IAC Database](https://iac.university/). There are no restrictions on its use, making it available for both academic and commercial purposes.
+
+### Dataset Overview
+
+- **Content**: The dataset includes detailed records from energy assessments across various manufacturing sites:
+  - `ASSESS`: General information about each assessment.
+  - `RECC1 to RECC6`: Specific energy-saving recommendations.
+  - `Terms`: Definitions and terminologies used within the dataset.
+- **Population and Sample**:
+  - **Population**: Small and medium-sized manufacturing facilities in the U.S.
+  - **Sample**: Each record represents an individual assessment conducted by the IAC.
+
+## Data Explanation and Description
+
+### Data Structure and Quality
+
+**Dimensions and Structure**:
+- **Total Sheets**: `r length(sheet_names)`, including details and recommendations.
+- **General Dimensions**:
+  - ASSESS sheet: `r nrow(data_frames[['ASSESS']])` rows x `r ncol(data_frames[['ASSESS']])` columns
+  - RECC sheets: Each approximately `r nrow(data_frames[['RECC1']])` rows x `r ncol(data_frames[['RECC1']])` columns
+
+**Variables and Coding**:
+- **Key Variables**: Include identifiers, dates, types of recommendations, potential and actual savings, implementation status.
+- **Coding**: Numerically and categorically coded variables.
+- **Column names**: 
+
+ The Column for ACCESS can be seen below
+```{r}
+
+for (i in 1:nrow(data_frames[['Terms']])){
+  cat(data_frames[['Terms']][['ASSESS Terms']][i],": ", data_frames[['Terms']][[2]][i], '\n')
+}
+
+```
+
+ The Column for RECC can be seen below
+```{r}
+
+for (i in 1:nrow(data_frames[['Terms']])) {
+  term <- data_frames[['Terms']][['RECC Terms']][i]
+  description <- data_frames[['Terms']][[5]][i]
+  if (!is.na(term) && !is.na(description)) {
+    cat(term, ": ", description, '\n')
+  }
+}
+
+```
+                   
+**Data Quality Issues**:
+- **Missing Data**: Notable in implementation status and metrics.
+- **Inconsistencies and Anomalies**: Variability in entries and some columns with mixed data types.
+
+### Handling Data Quality Issues
+
+To ensure the integrity of our analysis:
+- **Consistency Checks**: Scripts to verify data consistency.
+- **Missing Data Handling**: Strategies like imputation or exclusion based on the scenario.
+- **Data Conversion**: Convert mixed-type columns to text, then to numeric post-cleanup.
+
+
+
+# Methods
+
+# Results
+
+# Discussion
+
+# Summary
