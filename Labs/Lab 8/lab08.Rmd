@@ -1,0 +1,110 @@
+---
+title: "Lab08"
+author: "Nathan Holterhoff, Taylor Kelly, Anthony Liu"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# 1
+
+## Tournament Results Summary
+
+| club| opponent |result|
+|----------|-----|-------|
+Palmeiras| Atlético Mineiro|1:0|
+Palmeiras |Internacional |2:1|
+Atlético Mineiro| Palmeiras |0:0|
+Atlético Mineiro |Internacional| 1:1|
+Internacional |Palmeiras |2:3|
+Internacional| Atlético Mineiro| 1:2|
+
+## 1.1 
+
+### 1.1.1
+
+This data is in long form. This is because each row is a single observation and there are identifiers that are repeated in rows.
+
+### 1.1.2
+
+| Club              | vs Palmeiras | vs Atlético Mineiro  | vs Internacional |
+|-------------------|--------------|----------------------|------------------|
+| Palmeiras  |-|1:0,0:0|2:1,3:2|
+| Atlético Mineiro |0:0,1:0|-|1:1, 2:1|
+| Internacional | 2:1, 1:2|1:2, 2:1|-|
+
+
+## 1.2
+
+|Name |NASDAQ |established |revenue ($B)| net income| assets|
+|-|-|-|-|
+|Amazon |AMZN| 1994.00| 574.00| 30.40| 528.00|
+|Google |GOOG| 1998.00| 307.00| 79.80| 402.00|
+
+
+### 1.2.1
+
+This data is wide format since there are no repeated identifiers and there are multiple variables per row.
+
+### 1.2.2
+
+| Company | Variable        | Value |
+|---------|-----------------|-------|
+| Amazon  | NASDAQ          | AMZN  |
+| Amazon  | Established     | 1994  |
+| Amazon  | Revenue (\$B)   | 574   |
+| Amazon  | Net Income (\$B)| 30.4  |
+| Amazon  | Assets (\$B)    | 528   |
+| Google  | NASDAQ          | GOOG  |
+| Google  | Established     | 1998  |
+| Google  | Revenue (\$B)   | 307   |
+| Google  | Net Income (\$B)| 79.8  |
+| Google  | Assets (\$B)    | 402   |
+
+# 2
+
+## 2.1
+
+```{r}
+path <- "UAH-lower-troposphere-wide_2023-11-07.csv"
+surfaceData <- read_delim(path) %>%
+  select(year, month, globe, nopol, sopol)
+
+surfaceData
+```
+The data above is good.
+
+## 2.2
+
+This data is wide format since there are no repeated identifiers and there are multiple variables per row.
+
+## 2.3
+
+```{r}
+longSurfaceData <- surfaceData %>%
+  pivot_longer(
+    cols = c(globe, nopol, sopol),
+    names_to = "region",
+    values_to = "temperature"
+  )
+
+longSurfaceData
+```
+
+## 2.4
+
+```{r}
+wideSurfaceData <- longSurfaceData %>%
+  pivot_wider(
+    names_from = region,        # Use 'region' as the source of the new column names
+    values_from = temperature   # Fill the columns with 'temperature' values
+  )
+
+wideSurfaceData
+```
+
+The result above looks like the original data.
