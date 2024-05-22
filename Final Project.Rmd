@@ -3,10 +3,12 @@ title: "Final Project"
 author: "Nathan Holterhoff, Taylor Kelly, Anthony Liu"
 date: "`r Sys.Date()`"
 output: html_document
+
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+#install.packages("tidyverse")
 
 library(readxl)
 library(dplyr)
@@ -26,6 +28,7 @@ data_frames <- list()
 for (sheet_name in sheet_names) {
   data_frames[[sheet_name]] <- read_excel(file_path, sheet = sheet_name, guess_max = 10000)
 }
+head(data_frames)
 
 ```
 
@@ -132,6 +135,22 @@ To ensure the integrity of our analysis:
 
 
 # Methods
+```{r}
+all_reccs <- data_frame()
+for(sheet_name in sheet_names[2:7]){
+  print(sheet_name)
+  all_reccs <- bind_rows(all_reccs, data_frames[[sheet_name]])
+  
+}
+nrow(all_reccs)
+
+```
+```{r}
+joined_frames <- inner_join(data_frames[["ASSESS"]], all_reccs, "ID")
+head(joined_frames)
+```
+
+
 
 # Results
 
