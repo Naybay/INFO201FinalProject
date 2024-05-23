@@ -140,14 +140,41 @@ all_reccs <- data_frame()
 for(sheet_name in sheet_names[2:7]){
   print(sheet_name)
   all_reccs <- bind_rows(all_reccs, data_frames[[sheet_name]])
-  
 }
 nrow(all_reccs)
+print(sheet_names)
 
 ```
 ```{r}
 joined_frames <- inner_join(data_frames[["ASSESS"]], all_reccs, "ID")
+joined_frames <- joined_frames %>% 
+  mutate(STATE = toupper(STATE))
 head(joined_frames)
+```
+```{r}
+# Bar Plot of Total Energy Costs by Plant
+# Calculate total energy costs for each center
+energy_cost_columns <- c("EC_plant_cost", "E2_plant_cost", "E3_plant_cost", "E4_plant_cost", "E5_plant_cost", 
+                         "E6_plant_cost", "E7_plant_cost", "E8_plant_cost", "E9_plant_cost", "E10_plant_cost", 
+                         "E11_plant_cost", "E12_plant_cost")
+joined_frames %>% 
+  filter(is.na(PSAVED)) %>% 
+  nrow()
+
+
+
+joined_frames %>% 
+  select(CENTER, PSAVED) %>%
+  group_by(CENTER) %>%
+  summarize(TOTALPSAVED = mean(PSAVED)) %>%
+  filter(TOTALPSAVED > 0) %>% 
+  ggplot(aes(x = CENTER, y = TOTALPSAVED)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Total Energy Costs by Plant",
+       x = "Center",
+       y = "Total Energy Cost") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 
