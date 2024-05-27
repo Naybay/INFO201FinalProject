@@ -163,11 +163,13 @@ joined_frames %>%
 
 
 
-joined_frames %>% 
+total_saving <- joined_frames %>% 
   select(CENTER, PSAVED) %>%
   group_by(CENTER) %>%
   summarize(TOTALPSAVED = mean(PSAVED)) %>%
-  filter(TOTALPSAVED > 0) %>% 
+  filter(TOTALPSAVED > 0) 
+  
+total_saving %>% 
   ggplot(aes(x = CENTER, y = TOTALPSAVED)) +
   geom_bar(stat = "identity", fill = "skyblue") +
   labs(title = "Total Energy Costs by Plant",
@@ -177,7 +179,56 @@ joined_frames %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+```{r}
+# Using only the asessments found in washington
+joined_frames %>% 
+  filter(STATE == "WA") %>% 
+  group_by(CENTER) %>% 
+  summarize(TOTALPSAVED = mean(PSAVED, na.rm = TRUE)) %>% 
+  ggplot(aes(x = CENTER, y = TOTALPSAVED)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Washington Centers by Primary Savings",
+       x = "Center",
+       y = "Total PRimary Energy Savings") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+```
+```{r}
+# Using only the asessments found in washington
+joined_frames %>% 
+  filter(STATE == "WA") %>%
+  select(CENTER, PSOURCCODE) %>% 
+  group_by(CENTER) %>% 
+  #count(PSOURCCODE, na.rm = TRUE) %>% 
+  # Need a little help on this one, need the amounts on the side
+  ggplot(aes(x = factor(CENTER), y = PSOURCCODE, fill = PSOURCCODE)) +
+  geom_bar(stat = "identity", , position = position_dodge()) +
+  labs(title = "Washington Centers by Primary Savings",
+       x = "Center",
+       y = "Total PRimary Energy Savings") +
+  #scale_fill_manual(values = c("purple", "gold"), scale = PSOURCCODE)
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+```
 
+```{r}
+joined_frames %>% 
+  filter(STATE == "WA") %>% 
+  group_by(CENTER) %>% 
+  count(PSOURCCODE, na.rm = TRUE) %>% 
+  ggplot(aes(x = CENTER, y = n, fill = PSOURCCODE)) +
+  geom_bar(stat = "identity", , position = position_dodge()) +
+  labs(title = "Washington Centers by Primary Savings",
+       x = "Center",
+       y = "Count of Reports for Energy of that Type")
+  #scale_fill_manual(values = c("purple", "gold"), scale = PSOURCCODE)
+  # theme_minimal() +
+  # theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  # select(CENTER, PSOURCCODE) %>% 
+  # summarize(code_count = count(PSOURCCODE, na.rm = TRUE))
+```
 
 # Results
 
