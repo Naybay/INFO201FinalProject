@@ -6,6 +6,9 @@ output: html_document
 
 ---
 
+
+We are choosing Washington since it is the most underserved state from the IAC on the West Coast but still has enough data that observations can be me made.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #install.packages("tidyverse")
@@ -266,38 +269,34 @@ joined_frames %>%
 ```{r}
 # assess_data <- read_excel("path/to/IAC_Database_20240514.xlsx", sheet = "ASSESS")
 
+state_lookup <- data.frame(
+  abbrev = state.abb,
+  full_name = state.name
+)
+
+# Ensure the names are in lowercase for consistent matching
+state_lookup$abbrev <- tolower(state_lookup$abbrev)
+state_lookup$full_name <- tolower(state_lookup$full_name)
+
 state_summary <- joined_frames %>%
   group_by(STATE) %>%
   summarise(assessments = n(), .groups = 'drop')  # Count of assessments
 
-state_summary
 
+state_summary <- state_summary %>%
+  mutate(region = tolower(STATE)) %>%
+  left_join(state_lookup, by = c("region" = "abbrev")) %>%
+  mutate(region = ifelse(is.na(full_name), region, full_name)) %>%
+  select(-full_name, -STATE)  # Clean up unnecessary columns
+
+# Get state map data
 states_map <- map_data("state")
-
-# Check the unique state names in both datasets
-print(unique(state_summary$STATE))
-print(unique(states_map$region))
-
-# Create a lowercase version of the states for matching
-state_summary$region <- tolower(state_summary$STATE)
 states_map$region <- tolower(states_map$region)
 
-# Identify mismatches
-mismatches <- setdiff(state_summary$region, states_map$region)
-if (length(mismatches) > 0) {
-  print("Mismatches found:")
-  print(mismatches)
-} else {
-  print("No mismatches found, proceed to merge.")
-}
-
-# Assuming mismatches are resolved or none were found
+# Merge the summarized data with the map data
 map_data <- merge(states_map, state_summary, by = "region", all.x = TRUE)
 
-# Check merge result
-summary(map_data$assessments)
-
-# Plot
+# Create the choropleth map
 choropleth_map <- ggplot(map_data, aes(long, lat, group = group, fill = assessments)) +
   geom_polygon(color = "white") +
   scale_fill_gradient(low = "white", high = "blue", na.value = "grey") +
@@ -307,6 +306,7 @@ choropleth_map <- ggplot(map_data, aes(long, lat, group = group, fill = assessme
   theme_minimal()
 
 print(choropleth_map)
+
 ```
 
 ```{r}
