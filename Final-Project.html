@@ -371,6 +371,138 @@ for (sheet_name in sheet_names) {
 ## • `` -&gt; `...2`
 ## • `` -&gt; `...3`
 ## • `` -&gt; `...5`</code></pre>
+<pre class="r"><code>head(data_frames)</code></pre>
+<pre><code>## $ASSESS
+## # A tibble: 21,325 × 55
+##    ID     CENTER    FY   SIC NAICS STATE    SALES EMPLOYEES PLANT_AREA PRODUCTS 
+##    &lt;chr&gt;  &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt; &lt;chr&gt;    
+##  1 AM0001 AM      1987  3671    NA TX    33900000       206         NA MICRO &amp; …
+##  2 AM0002 AM      1987  2761    NA TX    25000000       156         NA BUSINESS…
+##  3 AM0003 AM      1987  3494    NA TX    15000000       200         NA SAFETY J…
+##  4 AM0004 AM      1987  3713    NA TX     4200000        75         NA TRUCKS B…
+##  5 AM0005 AM      1987  2024    NA TX    12000000        39         NA ICE CREAM
+##  6 AM0006 AM      1987  2048    NA TX    11000000        50         NA FEED &amp; M…
+##  7 AM0007 AM      1987  3559    NA TX    25000000        75         NA NG LIQUI…
+##  8 AM0008 AM      1987  2448    NA TX     1900000        50         NA WOODEN P…
+##  9 AM0009 AM      1987  2796    NA TX    22000000        82         NA LIGHOGRA…
+## 10 AM0010 AM      1987  2752    NA TX    30000000       312         NA LETHOGRA…
+## # ℹ 21,315 more rows
+## # ℹ 45 more variables: PRODUNITS &lt;dbl&gt;, PRODLEVEL &lt;dbl&gt;, PRODHOURS &lt;dbl&gt;,
+## #   NUMARS &lt;dbl&gt;, EC_plant_cost &lt;dbl&gt;, EC_plant_usage &lt;dbl&gt;,
+## #   ED_plant_cost &lt;dbl&gt;, ED_plant_usage &lt;dbl&gt;, EF_plant_cost &lt;dbl&gt;,
+## #   E2_plant_cost &lt;dbl&gt;, E2_plant_usage &lt;dbl&gt;, E3_plant_cost &lt;dbl&gt;,
+## #   E3_plant_usage &lt;dbl&gt;, E4_plant_cost &lt;dbl&gt;, E4_plant_usage &lt;dbl&gt;,
+## #   E5_plant_cost &lt;dbl&gt;, E5_plant_usage &lt;dbl&gt;, E6_plant_cost &lt;dbl&gt;, …
+## 
+## $RECC1
+## # A tibble: 30,000 × 30
+##    SUPERID ID    AR_NUMBER APPCODE  ARC2 IMPSTATUS IMPCOST PSOURCCODE PCONSERVED
+##    &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;           &lt;dbl&gt;
+##  1 AM0001… AM00…         1      NA  2.81 N           15000 E1                 NA
+##  2 AM0001… AM00…         2      NA  2.71 N             189 E1               7034
+##  3 AM0001… AM00…         3      NA  2.71 N             398 E1              10258
+##  4 AM0001… AM00…         4      NA  2.74 I             354 E1              10844
+##  5 AM0001… AM00…         5      NA  2.72 N              15 E1               4982
+##  6 AM0001… AM00…         6      NA  2.71 N              NA E1               1758
+##  7 AM0001… AM00…         7      NA  2.71 N              NA E1                586
+##  8 AM0002… AM00…         1      NA  2.62 I            5500 E1             260844
+##  9 AM0002… AM00…         2      NA  2.72 I           60000 E1            1077960
+## 10 AM0002… AM00…         3      NA  2.62 I              NA E1               4689
+## # ℹ 29,990 more rows
+## # ℹ 21 more variables: PSOURCONSV &lt;dbl&gt;, PSAVED &lt;dbl&gt;, SSOURCCODE &lt;chr&gt;,
+## #   SCONSERVED &lt;dbl&gt;, SSOURCONSV &lt;dbl&gt;, SSAVED &lt;dbl&gt;, TSOURCCODE &lt;chr&gt;,
+## #   TCONSERVED &lt;dbl&gt;, TSOURCONSV &lt;dbl&gt;, TSAVED &lt;dbl&gt;, QSOURCCODE &lt;chr&gt;,
+## #   QCONSERVED &lt;dbl&gt;, QSOURCONSV &lt;dbl&gt;, QSAVED &lt;dbl&gt;, REBATE &lt;chr&gt;,
+## #   INCREMNTAL &lt;chr&gt;, FY &lt;dbl&gt;, IC_CAPITAL &lt;dbl&gt;, IC_OTHER &lt;dbl&gt;,
+## #   PAYBACK &lt;dbl&gt;, BPTOOL &lt;chr&gt;
+## 
+## $RECC2
+## # A tibble: 30,000 × 30
+##    SUPERID ID    AR_NUMBER APPCODE  ARC2 IMPSTATUS IMPCOST PSOURCCODE PCONSERVED
+##    &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;           &lt;dbl&gt;
+##  1 GT0357… GT03…         4      NA  2.43 I             400 E1             196952
+##  2 GT0357… GT03…         5      NA  2.27 I           10000 E1            1532825
+##  3 GT0358… GT03…         1      NA  2.41 I            1601 E1              32239
+##  4 GT0358… GT03…         2      NA  2.71 I           14890 E1             128370
+##  5 GT0358… GT03…         3      NA  2.12 I             500 E2                468
+##  6 GT0358… GT03…         4      NA  2.24 N           12500 E2                673
+##  7 GT0358… GT03…         5      NA  2.21 I            1765 E2                268
+##  8 GT0358… GT03…         6      NA  2.42 I             175 E1               4689
+##  9 GT0358… GT03…         7      NA  2.41 N             450 E1              13189
+## 10 GT0358… GT03…         8      NA  2.42 I            3100 E1             162954
+## # ℹ 29,990 more rows
+## # ℹ 21 more variables: PSOURCONSV &lt;dbl&gt;, PSAVED &lt;dbl&gt;, SSOURCCODE &lt;chr&gt;,
+## #   SCONSERVED &lt;dbl&gt;, SSOURCONSV &lt;dbl&gt;, SSAVED &lt;dbl&gt;, TSOURCCODE &lt;chr&gt;,
+## #   TCONSERVED &lt;dbl&gt;, TSOURCONSV &lt;dbl&gt;, TSAVED &lt;dbl&gt;, QSOURCCODE &lt;chr&gt;,
+## #   QCONSERVED &lt;dbl&gt;, QSOURCONSV &lt;dbl&gt;, QSAVED &lt;dbl&gt;, REBATE &lt;chr&gt;,
+## #   INCREMNTAL &lt;chr&gt;, FY &lt;dbl&gt;, IC_CAPITAL &lt;dbl&gt;, IC_OTHER &lt;dbl&gt;,
+## #   PAYBACK &lt;dbl&gt;, BPTOOL &lt;chr&gt;
+## 
+## $RECC3
+## # A tibble: 30,000 × 30
+##    SUPERID ID    AR_NUMBER APPCODE  ARC2 IMPSTATUS IMPCOST PSOURCCODE PCONSERVED
+##    &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;           &lt;dbl&gt;
+##  1 MA0223… MA02…         7      NA  2.32 N            1495 E1               8792
+##  2 MA0223… MA02…         8      NA  2.42 I             100 E1               2052
+##  3 MA0224… MA02…         1      NA  2.13 N              NA E1             758206
+##  4 MA0224… MA02…         2      NA  2.13 N              NA E1            1189039
+##  5 MA0224… MA02…         3      NA  2.24 N           19927 E3               4889
+##  6 MA0224… MA02…         4      NA  2.21 I           35000 E7               7529
+##  7 MA0224… MA02…         5      NA  2.71 I           16200 E1             108734
+##  8 MA0224… MA02…         6      NA  2.42 N            1500 E1              37222
+##  9 MA0224… MA02…         7      NA  2.25 I            2250 E7                581
+## 10 MA0224… MA02…         8      NA  2.24 I            1060 E7                482
+## # ℹ 29,990 more rows
+## # ℹ 21 more variables: PSOURCONSV &lt;dbl&gt;, PSAVED &lt;dbl&gt;, SSOURCCODE &lt;chr&gt;,
+## #   SCONSERVED &lt;dbl&gt;, SSOURCONSV &lt;dbl&gt;, SSAVED &lt;dbl&gt;, TSOURCCODE &lt;chr&gt;,
+## #   TCONSERVED &lt;dbl&gt;, TSOURCONSV &lt;dbl&gt;, TSAVED &lt;dbl&gt;, QSOURCCODE &lt;chr&gt;,
+## #   QCONSERVED &lt;dbl&gt;, QSOURCONSV &lt;dbl&gt;, QSAVED &lt;dbl&gt;, REBATE &lt;chr&gt;,
+## #   INCREMNTAL &lt;chr&gt;, FY &lt;dbl&gt;, IC_CAPITAL &lt;dbl&gt;, IC_OTHER &lt;dbl&gt;,
+## #   PAYBACK &lt;dbl&gt;, BPTOOL &lt;chr&gt;
+## 
+## $RECC4
+## # A tibble: 30,000 × 30
+##    SUPERID ID    AR_NUMBER APPCODE  ARC2 IMPSTATUS IMPCOST PSOURCCODE PCONSERVED
+##    &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;           &lt;dbl&gt;
+##  1 OK0427… OK04…         1       2  2.12 I            5000 E2               4987
+##  2 OK0427… OK04…         2       1  2.41 N           49834 E1             418230
+##  3 OK0427… OK04…         3       1  2.41 N           34476 E1             289566
+##  4 OK0427… OK04…         4       2  2.24 N            1000 E2               6043
+##  5 OK0427… OK04…         5       2  2.21 I             193 E2                 83
+##  6 OK0428… OK04…         1       2  2.34 N         5000000 E1           63678196
+##  7 OK0428… OK04…         2       1  2.41 N           16008 E1             335580
+##  8 OK0428… OK04…         3       1  2.41 N              NA E1             269343
+##  9 OK0428… OK04…         4       2  2.42 N              NA E1              64771
+## 10 OK0428… OK04…         5       3  2.71 N            2530 E11                23
+## # ℹ 29,990 more rows
+## # ℹ 21 more variables: PSOURCONSV &lt;dbl&gt;, PSAVED &lt;dbl&gt;, SSOURCCODE &lt;chr&gt;,
+## #   SCONSERVED &lt;dbl&gt;, SSOURCONSV &lt;dbl&gt;, SSAVED &lt;dbl&gt;, TSOURCCODE &lt;chr&gt;,
+## #   TCONSERVED &lt;dbl&gt;, TSOURCONSV &lt;dbl&gt;, TSAVED &lt;dbl&gt;, QSOURCCODE &lt;chr&gt;,
+## #   QCONSERVED &lt;dbl&gt;, QSOURCONSV &lt;dbl&gt;, QSAVED &lt;dbl&gt;, REBATE &lt;chr&gt;,
+## #   INCREMNTAL &lt;chr&gt;, FY &lt;dbl&gt;, IC_CAPITAL &lt;dbl&gt;, IC_OTHER &lt;dbl&gt;,
+## #   PAYBACK &lt;dbl&gt;, BPTOOL &lt;chr&gt;
+## 
+## $RECC5
+## # A tibble: 30,000 × 30
+##    SUPERID ID    AR_NUMBER APPCODE  ARC2 IMPSTATUS IMPCOST PSOURCCODE PCONSERVED
+##    &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;           &lt;dbl&gt;
+##  1 TN0598… TN05…         9       3  2.24 K            4750 E2                360
+##  2 TN0599… TN05…         1       1  4.44 N           69000 R1                 NA
+##  3 TN0599… TN05…         2       4  3.12 N              NA W4             115000
+##  4 TN0599… TN05…         3       1  3.53 N           32900 P2                 NA
+##  5 TN0599… TN05…         4       4  3.12 N              NA W4             360000
+##  6 TN0599… TN05…         5       3  2.73 N            3400 E2               2670
+##  7 TN0599… TN05…         6       3  2.71 N            1000 EC              38101
+##  8 TN0599… TN05…         7       2  2.42 N            1110 ED                108
+##  9 TN0600… TN06…         1       4  4.42 N           10000 P1                 NA
+## 10 TN0600… TN06…         2       4  3.12 I            9000 W4             570000
+## # ℹ 29,990 more rows
+## # ℹ 21 more variables: PSOURCONSV &lt;dbl&gt;, PSAVED &lt;dbl&gt;, SSOURCCODE &lt;chr&gt;,
+## #   SCONSERVED &lt;dbl&gt;, SSOURCONSV &lt;dbl&gt;, SSAVED &lt;dbl&gt;, TSOURCCODE &lt;chr&gt;,
+## #   TCONSERVED &lt;dbl&gt;, TSOURCONSV &lt;dbl&gt;, TSAVED &lt;dbl&gt;, QSOURCCODE &lt;chr&gt;,
+## #   QCONSERVED &lt;dbl&gt;, QSOURCONSV &lt;dbl&gt;, QSAVED &lt;dbl&gt;, REBATE &lt;chr&gt;,
+## #   INCREMNTAL &lt;chr&gt;, FY &lt;dbl&gt;, IC_CAPITAL &lt;dbl&gt;, IC_OTHER &lt;dbl&gt;,
+## #   PAYBACK &lt;dbl&gt;, BPTOOL &lt;chr&gt;</code></pre>
 <div id="abstract" class="section level1">
 <h1>Abstract</h1>
 </div>
@@ -632,6 +764,25 @@ columns to text, then to numeric post-cleanup.</p>
 </div>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
+<pre class="r"><code>all_reccs &lt;- data_frame()</code></pre>
+<pre><code>## Warning: `data_frame()` was deprecated in tibble 1.1.0.
+## ℹ Please use `tibble()` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.</code></pre>
+<pre class="r"><code>for(sheet_name in sheet_names[2:7]){
+  print(sheet_name)
+  all_reccs &lt;- bind_rows(all_reccs, data_frames[[sheet_name]])
+  
+}</code></pre>
+<pre><code>## [1] &quot;RECC1&quot;
+## [1] &quot;RECC2&quot;
+## [1] &quot;RECC3&quot;
+## [1] &quot;RECC4&quot;
+## [1] &quot;RECC5&quot;
+## [1] &quot;RECC6&quot;</code></pre>
+<pre class="r"><code>nrow(all_reccs)</code></pre>
+<pre><code>## [1] 159028</code></pre>
 </div>
 <div id="results" class="section level1">
 <h1>Results</h1>
