@@ -21,6 +21,10 @@ library(stringr)
 file_path <- 'IAC_Database_20240514.xlsx'
 sheet_names <- excel_sheets(file_path)
 
+naics_codes <- read.csv("naics.csv")
+naics_codes <- naics_codes %>% 
+  select(code, name)
+head(naics_codes)
 # Initialize a list to hold all data frames
 data_frames <- list()
 
@@ -148,7 +152,10 @@ print(sheet_names)
 ```{r}
 joined_frames <- inner_join(data_frames[["ASSESS"]], all_reccs, "ID")
 joined_frames <- joined_frames %>% 
-  mutate(STATE = toupper(STATE))
+  mutate(STATE = toupper(STATE)) %>% 
+  select(!FY.y)
+names(joined_frames)[names(joined_frames) == 'FY.x'] <- 'FY'
+#joined_frames <- left_join(joined_frames, naics_codes, )
 head(joined_frames)
 ```
 ```{r}
@@ -218,11 +225,13 @@ joined_frames %>%
   filter(STATE == "WA") %>% 
   group_by(CENTER) %>% 
   count(PSOURCCODE, na.rm = TRUE) %>% 
+  filter(n > 25) %>% 
   ggplot(aes(x = CENTER, y = n, fill = PSOURCCODE)) +
   geom_bar(stat = "identity", , position = position_dodge()) +
-  labs(title = "Washington Centers by Primary Savings",
+  labs(title = "Washington Centers by Primary Resource",
        x = "Center",
-       y = "Count of Reports for Energy of that Type")
+       y = "Count of Reports for Energy of that Type",
+       )
   #scale_fill_manual(values = c("purple", "gold"), scale = PSOURCCODE)
   # theme_minimal() +
   # theme(axis.text.x = element_text(angle = 45, hjust = 1))
