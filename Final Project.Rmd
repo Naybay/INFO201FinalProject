@@ -29,7 +29,7 @@ naics_codes <- naics_codes %>%
   select("2022 NAICS US   Code", "2022 NAICS US Title")
 names(naics_codes)[names(naics_codes) == "2022 NAICS US   Code"] <- 'NAICS'
 names(naics_codes)[names(naics_codes) == "2022 NAICS US Title"] <- 'US_TITLE'
-naics_codes$NAICS <- asNumeric(naics_codes$NAICS)
+naics_codes$NAICS <- as.numeric(naics_codes$NAICS)
 head(naics_codes)
 # Initialize a list to hold all data frames
 data_frames <- list()
@@ -270,20 +270,43 @@ state_summary <- joined_frames %>%
   group_by(STATE) %>%
   summarise(assessments = n(), .groups = 'drop')  # Count of assessments
 
-states_map <- map_data("state")
-state_summary$region <- tolower(state_summary$STATE) # Make sure state names match
+state_summary
 
+states_map <- map_data("state")
+
+# Check the unique state names in both datasets
+print(unique(state_summary$STATE))
+print(unique(states_map$region))
+
+# Create a lowercase version of the states for matching
+state_summary$region <- tolower(state_summary$STATE)
+states_map$region <- tolower(states_map$region)
+
+# Identify mismatches
+mismatches <- setdiff(state_summary$region, states_map$region)
+if (length(mismatches) > 0) {
+  print("Mismatches found:")
+  print(mismatches)
+} else {
+  print("No mismatches found, proceed to merge.")
+}
+
+# Assuming mismatches are resolved or none were found
 map_data <- merge(states_map, state_summary, by = "region", all.x = TRUE)
 
+# Check merge result
+summary(map_data$assessments)
+
+# Plot
 choropleth_map <- ggplot(map_data, aes(long, lat, group = group, fill = assessments)) +
   geom_polygon(color = "white") +
+  scale_fill_gradient(low = "white", high = "blue", na.value = "grey") +
   coord_fixed(1.3) +
   labs(fill = "Number of Assessments") +
   ggtitle("Number of Assessments by State") +
   theme_minimal()
-# 
-# print(choropleth_map)
-# ggsave("state_choropleth_map_assessments.png", plot = choropleth_map)
+
+print(choropleth_map)
 ```
 
 ```{r}
