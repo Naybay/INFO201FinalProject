@@ -14,6 +14,7 @@ library(readxl)
 library(dplyr)
 library(ggplot2)
 library(stringr)
+library(maps)
 
 ```
 
@@ -21,9 +22,14 @@ library(stringr)
 file_path <- 'IAC_Database_20240514.xlsx'
 sheet_names <- excel_sheets(file_path)
 
-naics_codes <- read.csv("naics.csv")
-naics_codes <- naics_codes %>% 
-  select(code, name)
+naics_codes <-  read_excel("2-6 digit_2022_Codes.xlsx")
+# names(naics_codes)
+# naics_codes <- read.csv("naics.csv")
+naics_codes <- naics_codes %>%
+  select("2022 NAICS US   Code", "2022 NAICS US Title")
+names(naics_codes)[names(naics_codes) == "2022 NAICS US   Code"] <- 'NAICS'
+names(naics_codes)[names(naics_codes) == "2022 NAICS US Title"] <- 'US_TITLE'
+naics_codes$NAICS <- asNumeric(naics_codes$NAICS)
 head(naics_codes)
 # Initialize a list to hold all data frames
 data_frames <- list()
@@ -155,8 +161,8 @@ joined_frames <- joined_frames %>%
   mutate(STATE = toupper(STATE)) %>% 
   select(!FY.y)
 names(joined_frames)[names(joined_frames) == 'FY.x'] <- 'FY'
-#joined_frames <- left_join(joined_frames, naics_codes, )
-head(joined_frames)
+joined_frames <- left_join(joined_frames, naics_codes, "NAICS")
+tail(joined_frames)
 ```
 ```{r}
 # Bar Plot of Total Energy Costs by Plant
@@ -238,6 +244,62 @@ joined_frames %>%
   # select(CENTER, PSOURCCODE) %>% 
   # summarize(code_count = count(PSOURCCODE, na.rm = TRUE))
 ```
+```{r}
+# Highest count NAICS code, grouped by Center
+joined_frames %>% 
+  filter(STATE == "WA") %>% 
+  select(CENTER, NAICS, STATE, US_TITLE) %>% 
+  group_by(CENTER) %>%
+  na.omit() %>%
+  count(US_TITLE, na.rm = TRUE) %>%
+  filter(rank(desc(n)) < 5) %>%
+  # Change the fill name to the actual product
+  ggplot(aes(x = CENTER, y = n, fill = factor(US_TITLE))) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(title = "Washington Centers by Primary Resource",
+       x = "Center",
+       y = "Count of Reports for Energy of that Type",
+       fill = "NAICS Code"
+       )
+```
+
+```{r}
+# assess_data <- read_excel("path/to/IAC_Database_20240514.xlsx", sheet = "ASSESS")
+
+state_summary <- joined_frames %>%
+  group_by(STATE) %>%
+  summarise(assessments = n(), .groups = 'drop')  # Count of assessments
+
+states_map <- map_data("state")
+state_summary$region <- tolower(state_summary$STATE) # Make sure state names match
+
+map_data <- merge(states_map, state_summary, by = "region", all.x = TRUE)
+
+choropleth_map <- ggplot(map_data, aes(long, lat, group = group, fill = assessments)) +
+  geom_polygon(color = "white") +
+  coord_fixed(1.3) +
+  labs(fill = "Number of Assessments") +
+  ggtitle("Number of Assessments by State") +
+  theme_minimal()
+# 
+# print(choropleth_map)
+# ggsave("state_choropleth_map_assessments.png", plot = choropleth_map)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
 
 # Results
 
