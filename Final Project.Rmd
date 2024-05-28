@@ -12,7 +12,8 @@ We are choosing Washington since it is the most underserved state from the IAC o
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #install.packages("tidyverse")
-
+# install.packages("scales")
+library(scales)
 library(readxl)
 library(dplyr)
 library(ggplot2)
@@ -310,14 +311,62 @@ print(choropleth_map)
 ```
 
 ```{r}
+# Tracking Savings per fiscal year
+joined_frames %>% 
+  filter(STATE == "WA") %>% 
+  select(SUPERID, ID, NAICS, CENTER, SALES, FY) %>% 
+  filter(!is.na(SALES)) %>% 
+  group_by(CENTER, FY) %>%
+  summarize(SALES_TOTAL = sum(SALES)) %>%
+  ggplot(aes(x = FY, y = SALES_TOTAL, fill = CENTER, color = CENTER)) +
+  geom_point(stat = "identity", size = 2) +
+  labs(title = "Total S",
+       x = "Fiscal Year",
+       y = "Total Yearly Sales",
+       fill = "Assesment Center"
+       ) +
+  scale_y_continuous(labels = label_dollar()) +
+  theme(text = element_text(size=15))
+```
+
+```{r}
+# Tracking Savings per fiscal year
+# saving_noNA <- joined_frames 
+# saving_noNA <- saving_noNA %>% 
+#   replace(is.na('PSAVED'), 0) %>% 
+#   replace(is.na('SSAVED'), 0) %>% 
+#   replace(is.na('TSAVED'), 0) %>% 
+#   replace(is.na('QSAVED'), 0)
+# # saving_noNA <- replace(saving_noNA, is.na('SSAVED'), 0)
+# # saving_noNA <- replace(saving_noNA, is.na('TSAVED'), 0)
+# # saving_noNA <- replace(saving_noNA, is.na('QSAVED'), 0)
+# saving_noNA
+
+joined_frames %>% 
+  filter(STATE == "WA") %>% 
+  select(SUPERID, ID, NAICS, CENTER, FY, PSAVED, SSAVED, TSAVED, QSAVED) %>% 
+  group_by(FY, CENTER) %>% 
+  mutate(TOTAL_SAVED = sum(PSAVED, SSAVED, TSAVED, QSAVED, na.rm = TRUE)) %>% 
+  ggplot(aes(x = FY, y = TOTAL_SAVED, color = CENTER)) +
+  geom_line(stat = "identity", size = 2) +
+  labs(title = "Total Saved",
+       x = "Fiscal Year",
+       y = "Total Yearly Savings Over All Resources",
+       fill = "Assesment Center"
+       ) +
+  scale_y_continuous(labels = label_dollar()) +
+  theme(text = element_text(size=15))
+```
+
+```{r}
+# Savings by Reccomendation, top 10, by top 5 industries
+
 
 ```
 
 ```{r}
+# For UW, Savings per year by industry/energy type
 
-```
-
-```{r}
 
 ```
 
