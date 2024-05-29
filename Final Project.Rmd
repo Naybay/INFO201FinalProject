@@ -27,6 +27,8 @@ file_path <- 'IAC_Database_20240514.xlsx'
 sheet_names <- excel_sheets(file_path)
 
 naics_codes <-  read_excel("2-6 digit_2022_Codes.xlsx")
+
+
 # names(naics_codes)
 # naics_codes <- read.csv("naics.csv")
 naics_codes <- naics_codes %>%
@@ -150,7 +152,7 @@ To ensure the integrity of our analysis:
 
 # Methods
 ```{r}
-all_reccs <- data_frame()
+all_reccs <- tibble()
 for(sheet_name in sheet_names[2:7]){
   print(sheet_name)
   all_reccs <- bind_rows(all_reccs, data_frames[[sheet_name]])
@@ -268,7 +270,6 @@ joined_frames %>%
 ```
 
 ```{r}
-# assess_data <- read_excel("path/to/IAC_Database_20240514.xlsx", sheet = "ASSESS")
 
 state_lookup <- data.frame(
   abbrev = state.abb,
@@ -348,7 +349,7 @@ joined_frames %>%
   group_by(FY, CENTER) %>% 
   mutate(TOTAL_SAVED = sum(PSAVED, SSAVED, TSAVED, QSAVED, na.rm = TRUE)) %>% 
   ggplot(aes(x = FY, y = TOTAL_SAVED, color = CENTER)) +
-  geom_line(stat = "identity", size = 2) +
+  geom_bar(stat = "identity", size = 2) +
   labs(title = "Total Saved",
        x = "Fiscal Year",
        y = "Total Yearly Savings Over All Resources",
@@ -359,10 +360,64 @@ joined_frames %>%
 ```
 
 ```{r}
-# Savings by Reccomendation, top 10, by top 5 industries
+library(dplyr)
+library(ggplot2)
+
+# Complete pipeline from data preparation to plotting
+joined_frames %>%
+  # Calculate total savings per recommendation
+  mutate(Total_Savings = PSAVED + SSAVED + TSAVED + QSAVED) %>%
+  # Group by industry and recommendation code, sum savings
+  group_by(US_TITLE, ARC2) %>%
+  summarise(Total_Savings = sum(Total_Savings, na.rm = TRUE), .groups = 'drop') %>%
+  # Identify top 5 industries by total savings
+  group_by(US_TITLE) %>%
+  summarise(Industry_Total_Savings = sum(Total_Savings, na.rm = TRUE)) %>%
+  top_n(5, Industry_Total_Savings) %>%
+  # Extract top 5 industry names
+  pull(US_TITLE) %>%
+  # Re-filter original data to include only these top 5 industries
+  { filter(joined_frames, US_TITLE %in% .) %>%
+    # Make sure to re-calculate total savings
+    mutate(Total_Savings = PSAVED + SSAVED + TSAVED + QSAVED)
+  } %>%
+  # Recalculate savings per ARC2 within these top industries
+  group_by(US_TITLE, ARC2) %>%
+  summarise(Total_Savings = sum(Total_Savings, na.rm = TRUE), .groups = 'drop') %>%
+  # Get top 10 recommendations by total savings within these industries
+  top_n(10, Total_Savings) %>%
+  # Prepare data for plotting
+  # Plotting
+  ggplot(aes(x = factor(US_TITLE), y = Total_Savings, fill = US_TITLE)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(title = "Top 10 Recommendations by Savings Across Top 5 Industries",
+       x = "Recommendation Code", y = "Total Savings", fill = "Industry") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 
 
 ```
+
+```{r}
+Top5groups <- joined_frames %>%
+
+graphed <- joined_frames %>% 
+  select(US_TITLE, ARC2, PSAVED, SSAVED, TSAVED, QSAVED) %>% 
+  filter(!is.na(US_TITLE)) %>%
+  group_by(US_TITLE, ARC2) %>%
+  mutate(TOTAL_SAVED = sum(PSAVED, SSAVED, TSAVED, QSAVED, na.rm = TRUE)) %>%
+  arrange(TOTAL_SAVED) %>%
+  slice_head(n=3)%>%
+  ggplot(aes(x = US_TITLE, y = TOTAL_SAVED)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(title = "Top 10 Recommendations by Savings Across Top 5 Industries",
+       x = "Recommendation Code", y = "Total Savings", fill = "recommendation") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+graphed
+  
+```
+
 
 ```{r}
 # For UW, Savings per year by industry/energy type
