@@ -5,31 +5,376 @@ date: "`r Sys.Date()`"
 output: ioslides_presentation
 ---
 
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+#install.packages("tidyverse")
+# install.packages("scales")
+library(scales)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(maps)
+
+options(warn = -1)
 ```
 
-## R Markdown
+```{r, include=FALSE}
+file_path <- 'IAC_Database_20240514.xlsx'
+sheet_names <- excel_sheets(file_path)
 
-This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+naics_codes <-  read_excel("2-6 digit_2022_Codes.xlsx")
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+arc_codes <- read.csv('ARC_List_Full_Extracted.csv')
 
-## Slide with Bullets
+arc_codes <- arc_codes %>%
+  select(Code, Description)
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
 
-## Slide with R Output
+# names(naics_codes)
+# naics_codes <- read.csv("naics.csv")
+naics_codes <- naics_codes %>%
+  select("2022 NAICS US   Code", "2022 NAICS US Title")
+names(naics_codes)[names(naics_codes) == "2022 NAICS US   Code"] <- 'NAICS'
+names(naics_codes)[names(naics_codes) == "2022 NAICS US Title"] <- 'US_TITLE'
+naics_codes$NAICS <- as.numeric(naics_codes$NAICS)
+head(naics_codes)
+# Initialize a list to hold all data frames
+data_frames <- list()
 
-```{r cars, echo = TRUE}
-summary(cars)
+# Loop through each sheet name and read the sheet into a data frame
+for (sheet_name in sheet_names) {
+  data_frames[[sheet_name]] <- read_excel(file_path, sheet = sheet_name, guess_max = 10000)
+}
+head(data_frames)
+
 ```
 
-## Slide with Plot
+```{r, include=FALSE}
 
-```{r pressure}
-plot(pressure)
+for (i in 1:nrow(data_frames[['Terms']])){
+  cat(data_frames[['Terms']][['ASSESS Terms']][i],": ", data_frames[['Terms']][[2]][i], '\n')
+}
+
 ```
 
+
+```{r, include=FALSE}
+
+for (i in 1:nrow(data_frames[['Terms']])) {
+  term <- data_frames[['Terms']][['RECC Terms']][i]
+  description <- data_frames[['Terms']][[5]][i]
+  if (!is.na(term) && !is.na(description)) {
+    cat(term, ": ", description, '\n')
+  }
+}
+
+```
+
+```{r, include=FALSE}
+all_reccs <- tibble()
+for(sheet_name in sheet_names[2:7]){
+  print(sheet_name)
+  all_reccs <- bind_rows(all_reccs, data_frames[[sheet_name]])
+}
+nrow(all_reccs)
+print(sheet_names)
+
+```
+
+```{r, include=FALSE}
+joined_frames <- left_join(data_frames[["ASSESS"]], naics_codes, "NAICS")
+all_reccs <- left_join(all_reccs, arc_codes, c("ARC2"= "Code"))
+joined_frames <- left_join(joined_frames, all_reccs, "ID")
+
+joined_frames <- joined_frames %>% 
+  mutate(STATE = toupper(STATE)) %>% 
+  select(!FY.y)
+
+# unique(joined_frames$STATE)
+
+joined_frames$STATE <- toupper(joined_frames$STATE)
+names(joined_frames)[names(joined_frames) == 'FY.x'] <- 'FY'
+# joined_frames <- left_join(joined_frames, arc_codes, c("ARC2"= "Code"))
+head(joined_frames)
+
+#joined_frames <- inner_join(data_frames[["ASSESS"]], all_reccs, "ID")
+# joined_frames <- joined_frames %>% 
+#   mutate(STATE = toupper(STATE)) %>% 
+#   select(!FY.y)
+# names(joined_frames)[names(joined_frames) == 'FY.x'] <- 'FY'
+# joined_frames <- left_join(joined_frames, naics_codes, "NAICS")
+# joined_frames <- left_join(joined_frames, arc_codes, c("ARC2"= "Code"))
+# tail(joined_frames)
+
+```
+
+
+## Number of Assessments
+
+
+
+```{r}
+## Number of Assessments by State
+
+state_lookup <- data.frame(
+  abbrev = state.abb,
+  full_name = state.name
+)
+
+# Ensure the names are in lowercase for consistent matching
+state_lookup$abbrev <- tolower(state_lookup$abbrev)
+state_lookup$full_name <- tolower(state_lookup$full_name)
+
+state_summary <- joined_frames %>%
+  group_by(STATE) %>%
+  summarise(assessments = n(), .groups = 'drop')  # Count of assessments
+
+
+state_summary <- state_summary %>%
+  mutate(region = tolower(STATE)) %>%
+  left_join(state_lookup, by = c("region" = "abbrev")) %>%
+  mutate(region = ifelse(is.na(full_name), region, full_name)) %>%
+  select(-full_name, -STATE)  # Clean up unnecessary columns
+
+# Get state map data
+states_map <- map_data("state")
+states_map$region <- tolower(states_map$region)
+
+# Merge the summarized data with the map data
+map_data <- merge(states_map, state_summary, by = "region", all.x = TRUE)
+
+# Create the choropleth map
+choropleth_map <- ggplot(map_data, aes(long, lat, group = group, fill = assessments)) +
+  geom_polygon(color = "white") +
+  scale_fill_gradient(low = "white", high = "blue", na.value = "grey") +
+  coord_fixed(1.3) +
+  labs(fill = "Number of Assessments") +
+  ggtitle("Number of Assessments by State") +
+  theme_minimal()
+
+print(choropleth_map)
+```
+
+## Energy Costs by Center Across the USA
+
+```{r}
+# Bar Plot of Total Energy Costs by Plant
+# Calculate total energy costs for each center
+energy_cost_columns <- c("EC_plant_cost", "E2_plant_cost", "E3_plant_cost", "E4_plant_cost", "E5_plant_cost", 
+                         "E6_plant_cost", "E7_plant_cost", "E8_plant_cost", "E9_plant_cost", "E10_plant_cost", 
+                         "E11_plant_cost", "E12_plant_cost")
+
+total_saving <- data_frames[["ASSESS"]] %>%
+  filter(!is.na(STATE)) %>% 
+  group_by(ID) %>%
+  mutate(total_saving = sum(EC_plant_cost, E2_plant_cost, E3_plant_cost, E4_plant_cost, E5_plant_cost, 
+                         E6_plant_cost, E7_plant_cost, E8_plant_cost, E9_plant_cost, E10_plant_cost, 
+                         E11_plant_cost, E12_plant_cost, na.rm = TRUE))
+
+
+total_saving <-  total_saving %>%
+  group_by(STATE) %>%
+  summarize(TOTALPSAVED = mean(total_saving), .groups = "keep")
+
+  
+total_saving %>% 
+  ggplot(aes(x = STATE, y = TOTALPSAVED, fill = STATE == "WA")) +
+  geom_bar(stat = "identity", linewidth= 1, position = position_dodge2()) +
+  labs(title = "Average Energy Cost by State",
+       x = "State",
+       y = "Average Energy Cost", 
+       fill = "Washington") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 5)) +
+  theme(legend.position = "none") +
+  scale_y_continuous(labels = label_dollar())
+  
+# +
+#   scale_fill_gradient(low = "purple", high = "gold", na.value = "grey")
+```
+
+## Most Assessed Industries by Centers in Washington
+
+```{r}
+# Highest count NAICS code, grouped by Center
+joined_frames %>% 
+  filter(STATE == "WA") %>% 
+  select(CENTER, NAICS, STATE, US_TITLE) %>% 
+  group_by(CENTER) %>%
+  na.omit() %>%
+  count(US_TITLE, na.rm = TRUE) %>%
+  filter(rank(desc(n)) < 5) %>%
+  # Change the fill name to the actual product
+  ggplot(aes(x = CENTER, y = n, fill = factor(US_TITLE))) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(title = "Most Assessed Industries by Centers in Washington",
+       x = "Center",
+       y = "Report Count",
+       fill = "Industry"
+       )
+```
+
+## Total Yearly Sales by Companies \nAssessed by Washington Based Centers
+
+```{r}
+# Tracking Savings per fiscal year
+joined_frames %>% 
+  filter(STATE == "WA") %>% 
+  select(SUPERID, ID, NAICS, CENTER, SALES, FY) %>% 
+  filter(!is.na(SALES)) %>% 
+  group_by(CENTER, FY) %>%
+  summarize(SALES_TOTAL = sum(SALES), .groups = "keep") %>%
+  ggplot(aes(x = FY, y = SALES_TOTAL, fill = CENTER)) +
+  geom_bar(stat = "identity", size = 2) +
+  ggtitle("Total Yearly Sales by Companies \nAssessed by Washington Based Centers") +
+  labs(x = "Fiscal Year",
+       y = "Total Yearly Sales",
+       fill = "Assesment Center"
+       ) +
+  scale_y_continuous(labels = label_dollar()) +
+  theme(text = element_text(size=15))
+```
+
+##  Total Costs Savings from Reccomendations for \nCompanies Assessed by Washington Based Centers
+
+```{r}
+joined_frames %>% 
+  filter(STATE == "WA") %>% 
+  select(SUPERID, ID, NAICS, CENTER, FY, PSAVED, SSAVED, TSAVED, QSAVED) %>% 
+  group_by(CENTER, FY) %>% 
+  mutate(TOTAL_SAVED = sum(PSAVED, SSAVED, TSAVED, QSAVED, na.rm = TRUE)) %>%
+  ggplot(aes(x = FY, y = TOTAL_SAVED, fill = CENTER)) +
+  geom_bar(stat = "identity", size = 2) +
+  labs(title = "Total Costs Savings from Reccomendations for \nCompanies Assessed by Washington Based Centers",
+       x = "Fiscal Year",
+       y = "Total Yearly Savings Over All Resources",
+       fill = "Assesment Center"
+       ) +
+  scale_y_continuous(labels = label_dollar()) +
+  theme(text = element_text(size=15))
+```
+
+
+## Savings as Percentage of Sales
+
+```{r}
+joined_frames %>% 
+  filter(STATE == "WA") %>% 
+  select(CENTER, FY, PSAVED, SSAVED, TSAVED, QSAVED, SALES) %>% 
+  group_by(CENTER, FY) %>% 
+  mutate(TOTAL_SAVED = sum(PSAVED, SSAVED, TSAVED, QSAVED, na.rm = TRUE)) %>%
+  mutate(SALES_TOTAL = sum(SALES, na.rm = TRUE)) %>%
+  mutate(SAVED_TO_SALES = TOTAL_SAVED/SALES_TOTAL) %>% 
+  ggplot(aes(x = FY, y = SAVED_TO_SALES, fill = CENTER)) +
+  geom_bar(stat = "identity", size = 2) +
+  labs(title = "Savings as Percentage of Sales",
+       x = "Fiscal Year",
+       y = "Total Yearly Savings Over All Resources",
+       fill = "Assesment Center"
+       ) +
+  #scale_y_continuous(labels = label_dollar()) +
+  theme(text = element_text(size=15))
+```
+
+## Top 5 Recommendations by Savings Across Top 5 Industries
+
+```{r}
+
+# Identifying top 5 industries by number of entries
+Top5groups <- joined_frames %>%
+  filter(!is.na(US_TITLE), !is.na(NAICS)) %>%
+  count(US_TITLE) %>%
+  arrange(desc(n)) %>%
+  slice_head(n = 5)
+
+# Prepare data for graphing, including only top five recommendations per industry
+graphed <- joined_frames %>%
+  select(US_TITLE, ARC2, PSAVED, SSAVED, TSAVED, QSAVED, Description) %>%
+  filter(US_TITLE %in% Top5groups$US_TITLE) %>%
+  mutate(TOTAL_SAVED = PSAVED + SSAVED + TSAVED + QSAVED) %>%
+  group_by(US_TITLE, ARC2, Description) %>%
+  summarize(TOTAL_SAVED = sum(TOTAL_SAVED, na.rm = TRUE), .groups = 'keep') %>%
+  arrange(US_TITLE, desc(TOTAL_SAVED)) %>%
+  group_by(US_TITLE) %>%
+  slice_head(n = 5) %>%
+  ungroup() %>%
+  mutate(ARC2 = factor(ARC2))  # Factor conversion here for better control
+
+# Create the plot
+ggplot(graphed, aes(x = ARC2, y = TOTAL_SAVED, fill = Description)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  facet_wrap(~US_TITLE, scales = "free_x") +
+  labs(title = "Top 5 Recommendations by Savings Across Top 5 Industries",
+       x = "Recommendation Code", y = "Total Savings", fill = "Recommendation") +
+  scale_y_continuous(labels = label_dollar())
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        text = element_text(size = 12))  # Adjusting text size 
+
+
+```
+
+## Total Saved by Energy Type for the UW Center
+
+```{r}
+# For UW, Savings per year by industry/energy type
+# Going to use Primary Energy type, as is mainly the focus
+joined_frames %>% 
+  filter(CENTER == "UW") %>% 
+  select(FY, PSOURCCODE, PSAVED) %>% 
+  filter(substr(PSOURCCODE, 1, 1) == "E") %>% 
+  group_by(FY, PSOURCCODE) %>% 
+  summarize(SAVED_SUM = sum(PSAVED, na.rm = TRUE), .groups = "keep") %>% 
+  ggplot(aes(x = FY, y = SAVED_SUM, color = factor(PSOURCCODE))) +
+  geom_point(stat = "identity", size = 3) +
+  labs(title = "Total Saved by Energy Type for the UW Center",
+       x = "Fiscal Year",
+       y = "Saved Money by Primary Energy Type",
+       color = "Primary Source of Energy"
+       ) +
+  scale_y_continuous(labels = label_dollar()) +
+  theme(text = element_text(size=10)) +
+  guides(color = guide_legend(ncol = 2))
+
+```
+
+## We can see that in general, the category that has the most savings associated with it is EC, which represents Electrical Consumption, or in other words, how much electricity is used by the company in a given year. However, the reason that this category has the highest savings is because the UW center's main focus is on electrical consumption. If we also look at the amount of reccomendations for each energy type, we can see that a majority of reccomendations are aimed at improving savings on Electrical Consumption.
+
+```{r}
+# For UW, Savings per year by industry/energy type
+# Going to use Primary Energy type, as is mainly the focus
+joined_frames %>% 
+  filter(CENTER == "UW") %>% 
+  select(FY, PSOURCCODE, PSAVED) %>% 
+  filter(substr(PSOURCCODE, 1, 1) == "E") %>% 
+  group_by(PSOURCCODE) %>%
+  summarize(count = n())
+
+```
+
+## Total Saved by Energy Type for the UW Center
+
+```{r}
+# For UW, Savings per year by industry/energy type
+# Going to use Primary Energy type, as is mainly the focus
+joined_frames %>% 
+  filter(CENTER == "UW") %>% 
+  select(FY, PSOURCCODE, PSAVED) %>% 
+  filter(substr(PSOURCCODE, 1, 1) == "E") %>% 
+  filter(PSOURCCODE != "EC") %>% 
+  group_by(FY, PSOURCCODE) %>% 
+  summarize(SAVED_SUM = sum(PSAVED, na.rm = TRUE), .groups = "keep") %>% 
+  ggplot(aes(x = FY, y = SAVED_SUM, color = factor(PSOURCCODE))) +
+  geom_point(stat = "identity", size = 3) +
+  labs(title = "Total Saved by Energy Type for the UW Center",
+       x = "Fiscal Year",
+       y = "Saved Money by Primary Energy Type",
+       color = "Primary Source of Energy"
+       ) +
+  scale_y_continuous(labels = label_dollar()) +
+  theme(text = element_text(size=10)) +
+  guides(color = guide_legend(ncol = 2))
+
+```

@@ -271,7 +271,7 @@ total_saving <-  total_saving %>%
   
 total_saving %>% 
   ggplot(aes(x = STATE, y = TOTALPSAVED, fill = STATE == "WA")) +
-  geom_bar(stat = "identity", size = 1, position = position_dodge2()) +
+  geom_bar(stat = "identity", linewidth = 1, position = position_dodge2()) +
   labs(title = "Average Energy Cost by State",
        x = "State",
        y = "Average Energy Cost", 
@@ -420,8 +420,6 @@ joined_frames %>%
 
 
 ```{r}
-library(dplyr)
-library(ggplot2)
 
 # Identifying top 5 industries by number of entries
 Top5groups <- joined_frames %>%
