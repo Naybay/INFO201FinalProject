@@ -1,0 +1,49 @@
+Overall Story: Show recommendations that contribute the most to savings and cost efficiency in Washington
+This will help centers for IAS to focus on specific recommendations for plants, and how over time those changes can help out
+
+
+Start on US scale, with a heat map
+	Could do savings by state/numb assessments/average
+Focus down to Washington
+	Total Savings, by center
+Focus down to UW
+	most reccomendations, with savings for each
+	Savings by year
+	Energy types used
+
+
+
+
+
+(10pt) What and why are you doing this:
+What are you doing?
+	We are analyzing the IAC Assessment and Reccomendations Database. This is a public database from the IAC detailing assessments (Nathan Go Here)
+
+What is your target group?
+	
+What may they learn from your work?
+
+
+(10pt) Overview of data:
+
+
+Where did you get data?
+	Our data is a public dataset, from the IAC website. Our particular dataset is a combination of a few different datasets from the website.
+
+	The Assessment Dataset represents an assessment of energy use, types of energy consumed, as well as general data about the companies, such as their employees or total sales in a year. 
+	The Reccommendations Dataset, which details the reccomendations given by the IAC to companies in order to improve their energy consumption and efficiency.
+
+What about data quality and reliability?
+
+	The data is fairly high quality, representing years of assessments and reccomendations straight from the source of the organization which performs them. This also means that the dataset is generally reliable as well, as all the data is public, and updated regularly.
+
+
+Any ethical issues you see with using these data?
+
+	As this dataset is available to the general public, and no personal or identifiable data is given, there are no real ethical issues with the data.
+
+
+(20pt) Demonstrate the most important insights of the graphs (as much as time permits), do not get stuck in unimportant details. If you were using any more advanced methods (e.g., linear regression, machine learning), also explain how you used this.
+
+
+(10pt) Draw conclusions from your data/analysis

@@ -325,10 +325,10 @@ joined_frames %>%
   filter(!is.na(SALES)) %>% 
   group_by(CENTER, FY) %>%
   summarize(SALES_TOTAL = sum(SALES)) %>%
-  ggplot(aes(x = FY, y = SALES_TOTAL, fill = CENTER, color = CENTER)) +
+  ggplot(aes(x = FY, y = SALES_TOTAL, color = CENTER)) +
   geom_point(stat = "identity", size = 2) +
-  labs(title = "Total S",
-       x = "Fiscal Year",
+  ggtitle("Total Yearly Sales from Companies \nAssessed by Washington Based Centers") +
+  labs(x = "Fiscal Year",
        y = "Total Yearly Sales",
        fill = "Assesment Center"
        ) +
@@ -354,7 +354,7 @@ joined_frames %>%
   select(SUPERID, ID, NAICS, CENTER, FY, PSAVED, SSAVED, TSAVED, QSAVED) %>% 
   group_by(FY, CENTER) %>% 
   mutate(TOTAL_SAVED = sum(PSAVED, SSAVED, TSAVED, QSAVED, na.rm = TRUE)) %>% 
-  ggplot(aes(x = FY, y = TOTAL_SAVED, color = CENTER)) +
+  ggplot(aes(x = FY, y = TOTAL_SAVED, fill = CENTER)) +
   geom_bar(stat = "identity", size = 2) +
   labs(title = "Total Saved",
        x = "Fiscal Year",
@@ -444,13 +444,64 @@ ggplot(graphed, aes(x = ARC2, y = TOTAL_SAVED, fill = Description)) +
 
 ```{r}
 # For UW, Savings per year by industry/energy type
+# Going to use Primary Energy type, as is mainly the focus
+joined_frames %>% 
+  filter(CENTER == "UW") %>% 
+  select(FY, PSOURCCODE, PSAVED) %>% 
+  filter(substr(PSOURCCODE, 1, 1) == "E") %>% 
+  group_by(FY, PSOURCCODE) %>% 
+  summarize(SAVED_SUM = sum(PSAVED, na.rm = TRUE)) %>% 
+  ggplot(aes(x = FY, y = SAVED_SUM, color = factor(PSOURCCODE))) +
+  geom_point(stat = "identity", size = 3) +
+  labs(title = "Total Saved by Energy Type for the UW Center",
+       x = "Fiscal Year",
+       y = "Saved Money by Primary Energy Type",
+       color = "Primary Source of Energy"
+       ) +
+  scale_y_continuous(labels = label_dollar()) +
+  theme(text = element_text(size=10)) +
+  guides(color = guide_legend(ncol = 2))
 
+```
+We can see that in general, the category that has the most savings associated with it is EC, which represents Electrical Consumption, or in other words, how much electricity is used by the company in a given year. However, the reason that this category has the highest savings is because the UW center's main focus is on electrical consumption. If we also look at the amount of reccomendations for each energy type, we can see that a majority of reccomendations are aimed at improving savings on Electrical Consumption.
+
+```{r}
+# For UW, Savings per year by industry/energy type
+# Going to use Primary Energy type, as is mainly the focus
+joined_frames %>% 
+  filter(CENTER == "UW") %>% 
+  select(FY, PSOURCCODE, PSAVED) %>% 
+  filter(substr(PSOURCCODE, 1, 1) == "E") %>% 
+  group_by(PSOURCCODE) %>%
+  summarize(count = n())
 
 ```
 
+If we look at the data without Electrical Consumption:
 
+```{r}
+# For UW, Savings per year by industry/energy type
+# Going to use Primary Energy type, as is mainly the focus
+joined_frames %>% 
+  filter(CENTER == "UW") %>% 
+  select(FY, PSOURCCODE, PSAVED) %>% 
+  filter(substr(PSOURCCODE, 1, 1) == "E") %>% 
+  filter(PSOURCCODE != "EC") %>% 
+  group_by(FY, PSOURCCODE) %>% 
+  summarize(SAVED_SUM = sum(PSAVED, na.rm = TRUE)) %>% 
+  ggplot(aes(x = FY, y = SAVED_SUM, color = factor(PSOURCCODE))) +
+  geom_point(stat = "identity", size = 3) +
+  labs(title = "Total Saved by Energy Type for the UW Center",
+       x = "Fiscal Year",
+       y = "Saved Money by Primary Energy Type",
+       color = "Primary Source of Energy"
+       ) +
+  scale_y_continuous(labels = label_dollar()) +
+  theme(text = element_text(size=10)) +
+  guides(color = guide_legend(ncol = 2))
 
-
+```
+We can see that the most savings is again, the one with the second most recommendations, which is E2, or Natural Gas Consumption.
 # Results
 
 # Discussion
