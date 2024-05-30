@@ -28,6 +28,11 @@ sheet_names <- excel_sheets(file_path)
 
 naics_codes <-  read_excel("2-6 digit_2022_Codes.xlsx")
 
+arc_codes <- read.csv('ARC_List_Full_Extracted.csv')
+
+arc_codes <- arc_codes %>%
+  select(Code, Description)
+
 
 # names(naics_codes)
 # naics_codes <- read.csv("naics.csv")
@@ -168,6 +173,7 @@ joined_frames <- joined_frames %>%
   select(!FY.y)
 names(joined_frames)[names(joined_frames) == 'FY.x'] <- 'FY'
 joined_frames <- left_join(joined_frames, naics_codes, "NAICS")
+joined_frames <- left_join(joined_frames, arc_codes, c("ARC2"= "Code"))
 tail(joined_frames)
 ```
 ```{r}
@@ -399,23 +405,40 @@ joined_frames %>%
 ```
 
 ```{r}
+library(dplyr)
+library(ggplot2)
+
+# Identifying top 5 industries by number of entries
 Top5groups <- joined_frames %>%
+  filter(!is.na(US_TITLE), !is.na(NAICS)) %>%
+  count(US_TITLE) %>%
+  arrange(desc(n)) %>%
+  slice_head(n = 2)
 
-graphed <- joined_frames %>% 
-  select(US_TITLE, ARC2, PSAVED, SSAVED, TSAVED, QSAVED) %>% 
-  filter(!is.na(US_TITLE)) %>%
-  group_by(US_TITLE, ARC2) %>%
-  mutate(TOTAL_SAVED = sum(PSAVED, SSAVED, TSAVED, QSAVED, na.rm = TRUE)) %>%
-  arrange(TOTAL_SAVED) %>%
-  slice_head(n=3)%>%
-  ggplot(aes(x = US_TITLE, y = TOTAL_SAVED)) +
+# Prepare data for graphing, including only top five recommendations per industry
+graphed <- joined_frames %>%
+  select(US_TITLE, ARC2, PSAVED, SSAVED, TSAVED, QSAVED, Description) %>%
+  filter(US_TITLE %in% Top5groups$US_TITLE) %>%
+  mutate(TOTAL_SAVED = PSAVED + SSAVED + TSAVED + QSAVED) %>%
+  group_by(US_TITLE, ARC2, Description) %>%
+  summarize(TOTAL_SAVED = sum(TOTAL_SAVED, na.rm = TRUE), .groups = 'drop') %>%
+  arrange(US_TITLE, desc(TOTAL_SAVED)) %>%
+  group_by(US_TITLE) %>%
+  slice_head(n = 5) %>%
+  ungroup() %>%
+  mutate(ARC2 = factor(ARC2))  # Factor conversion here for better control
+
+# Create the plot
+ggplot(graphed, aes(x = ARC2, y = TOTAL_SAVED, fill = Description)) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  labs(title = "Top 10 Recommendations by Savings Across Top 5 Industries",
-       x = "Recommendation Code", y = "Total Savings", fill = "recommendation") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  facet_wrap(~US_TITLE, scales = "free_x") +
+  labs(title = "Top 5 Recommendations by Savings Across Top 5 Industries",
+       x = "Recommendation Code", y = "Total Savings", fill = "Recommendation") +
+  scale_y_continuous(labels = label_dollar())
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        text = element_text(size = 12))  # Adjusting text size 
 
-graphed
-  
+
 ```
 
 
