@@ -279,13 +279,13 @@ joined_frames %>%
   theme(text = element_text(size=15))
 ```
 
-## Top 5 Recommendations by Savings Across Top 5 Industries
+
+## Top 5 Industries
 
 ```{r}
-
 # Identifying top 5 industries by number of entries
 Top5groups <- joined_frames %>%
-  filter(!is.na(US_TITLE), !is.na(NAICS)) %>%
+  filter(!is.na(US_TITLE), !is.na(NAICS), STATE == "WA") %>%
   count(US_TITLE) %>%
   arrange(desc(n)) %>%
   slice_head(n = 5)
@@ -304,7 +304,12 @@ graphed <- joined_frames %>%
   mutate(ARC2 = factor(ARC2))  # Factor conversion here for better control
 
 unique(graphed$US_TITLE)
+```
 
+
+## Top 5 Recommendations by Savings Across Top 5 Industries
+
+```{r}
 # Create the plot
 ggplot(graphed, aes(x = ARC2, y = TOTAL_SAVED, fill = Description)) +
   geom_bar(stat = "identity", position = position_dodge()) +
@@ -314,8 +319,6 @@ ggplot(graphed, aes(x = ARC2, y = TOTAL_SAVED, fill = Description)) +
   scale_y_continuous(labels = label_dollar()) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1), 
         text = element_text(size = 8)) # Adjusting text size
-
-
 
 ```
 
