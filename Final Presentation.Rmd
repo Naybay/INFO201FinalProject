@@ -307,11 +307,12 @@ graphed <- joined_frames %>%
 ggplot(graphed, aes(x = ARC2, y = TOTAL_SAVED, fill = Description)) +
   geom_bar(stat = "identity", position = position_dodge()) +
   facet_wrap(~US_TITLE, scales = "free_x") +
-  labs(title = "Top 5 Recommendations by Savings Across Top 5 Industries",
+  labs(title = "Top 5 Recommendations by Savings \nAcross Top 5 Industries",
        x = "Recommendation Code", y = "Total Savings", fill = "Recommendation") +
-  scale_y_continuous(labels = label_dollar())
-  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-        text = element_text(size = 12))  # Adjusting text size 
+  scale_y_continuous(labels = label_dollar()) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), 
+        text = element_text(size = 8)) # Adjusting text size
+
 
 
 ```
@@ -340,8 +341,8 @@ joined_frames %>%
 
 ```
 
-## We can see that in general, the category that has the most savings associated with it is EC, which represents Electrical Consumption, or in other words, how much electricity is used by the company in a given year. However, the reason that this category has the highest savings is because the UW center's main focus is on electrical consumption. If we also look at the amount of reccomendations for each energy type, we can see that a majority of reccomendations are aimed at improving savings on Electrical Consumption.
-
+<!-- ## We can see that in general, the category that has the most savings associated with it is EC, which represents Electrical Consumption, or in other words, how much electricity is used by the company in a given year. However, the reason that this category has the highest savings is because the UW center's main focus is on electrical consumption. If we also look at the amount of reccomendations for each energy type, we can see that a majority of reccomendations are aimed at improving savings on Electrical Consumption. -->
+## Reccomendations by Energy Type
 ```{r}
 # For UW, Savings per year by industry/energy type
 # Going to use Primary Energy type, as is mainly the focus
