@@ -156,6 +156,9 @@ To ensure the integrity of our analysis:
 
 
 # Methods
+
+# Graphs and Setup
+## Setting up Dataframe
 ```{r}
 all_reccs <- tibble()
 for(sheet_name in sheet_names[2:7]){
@@ -166,115 +169,37 @@ nrow(all_reccs)
 print(sheet_names)
 
 ```
+
+## Joining the Data
 ```{r}
-joined_frames <- inner_join(data_frames[["ASSESS"]], all_reccs, "ID")
+joined_frames <- left_join(data_frames[["ASSESS"]], naics_codes, "NAICS")
+all_reccs <- left_join(all_reccs, arc_codes, c("ARC2"= "Code"))
+joined_frames <- left_join(joined_frames, all_reccs, "ID")
+
 joined_frames <- joined_frames %>% 
   mutate(STATE = toupper(STATE)) %>% 
   select(!FY.y)
+
+# unique(joined_frames$STATE)
+
+joined_frames$STATE <- toupper(joined_frames$STATE)
 names(joined_frames)[names(joined_frames) == 'FY.x'] <- 'FY'
-joined_frames <- left_join(joined_frames, naics_codes, "NAICS")
-joined_frames <- left_join(joined_frames, arc_codes, c("ARC2"= "Code"))
-tail(joined_frames)
-```
-```{r}
-# Bar Plot of Total Energy Costs by Plant
-# Calculate total energy costs for each center
-energy_cost_columns <- c("EC_plant_cost", "E2_plant_cost", "E3_plant_cost", "E4_plant_cost", "E5_plant_cost", 
-                         "E6_plant_cost", "E7_plant_cost", "E8_plant_cost", "E9_plant_cost", "E10_plant_cost", 
-                         "E11_plant_cost", "E12_plant_cost")
-joined_frames %>% 
-  filter(is.na(PSAVED)) %>% 
-  nrow()
+# joined_frames <- left_join(joined_frames, arc_codes, c("ARC2"= "Code"))
+head(joined_frames)
 
+#joined_frames <- inner_join(data_frames[["ASSESS"]], all_reccs, "ID")
+# joined_frames <- joined_frames %>% 
+#   mutate(STATE = toupper(STATE)) %>% 
+#   select(!FY.y)
+# names(joined_frames)[names(joined_frames) == 'FY.x'] <- 'FY'
+# joined_frames <- left_join(joined_frames, naics_codes, "NAICS")
+# joined_frames <- left_join(joined_frames, arc_codes, c("ARC2"= "Code"))
+# tail(joined_frames)
 
-
-total_saving <- joined_frames %>% 
-  select(CENTER, PSAVED) %>%
-  group_by(CENTER) %>%
-  summarize(TOTALPSAVED = mean(PSAVED)) %>%
-  filter(TOTALPSAVED > 0) 
-  
-total_saving %>% 
-  ggplot(aes(x = CENTER, y = TOTALPSAVED)) +
-  geom_bar(stat = "identity", fill = "skyblue") +
-  labs(title = "Total Energy Costs by Plant",
-       x = "Center",
-       y = "Total Energy Cost") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-```{r}
-# Using only the asessments found in washington
-joined_frames %>% 
-  filter(STATE == "WA") %>% 
-  group_by(CENTER) %>% 
-  summarize(TOTALPSAVED = mean(PSAVED, na.rm = TRUE)) %>% 
-  ggplot(aes(x = CENTER, y = TOTALPSAVED)) +
-  geom_bar(stat = "identity", fill = "skyblue") +
-  labs(title = "Washington Centers by Primary Savings",
-       x = "Center",
-       y = "Total PRimary Energy Savings") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  
-```
-```{r}
-# Using only the asessments found in washington
-joined_frames %>% 
-  filter(STATE == "WA") %>%
-  select(CENTER, PSOURCCODE) %>% 
-  group_by(CENTER) %>% 
-  #count(PSOURCCODE, na.rm = TRUE) %>% 
-  # Need a little help on this one, need the amounts on the side
-  ggplot(aes(x = factor(CENTER), y = PSOURCCODE, fill = PSOURCCODE)) +
-  geom_bar(stat = "identity", , position = position_dodge()) +
-  labs(title = "Washington Centers by Primary Savings",
-       x = "Center",
-       y = "Total PRimary Energy Savings") +
-  #scale_fill_manual(values = c("purple", "gold"), scale = PSOURCCODE)
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  
-```
 
-```{r}
-joined_frames %>% 
-  filter(STATE == "WA") %>% 
-  group_by(CENTER) %>% 
-  count(PSOURCCODE, na.rm = TRUE) %>% 
-  filter(n > 25) %>% 
-  ggplot(aes(x = CENTER, y = n, fill = PSOURCCODE)) +
-  geom_bar(stat = "identity", , position = position_dodge()) +
-  labs(title = "Washington Centers by Primary Resource",
-       x = "Center",
-       y = "Count of Reports for Energy of that Type",
-       )
-  #scale_fill_manual(values = c("purple", "gold"), scale = PSOURCCODE)
-  # theme_minimal() +
-  # theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  # select(CENTER, PSOURCCODE) %>% 
-  # summarize(code_count = count(PSOURCCODE, na.rm = TRUE))
-```
-```{r}
-# Highest count NAICS code, grouped by Center
-joined_frames %>% 
-  filter(STATE == "WA") %>% 
-  select(CENTER, NAICS, STATE, US_TITLE) %>% 
-  group_by(CENTER) %>%
-  na.omit() %>%
-  count(US_TITLE, na.rm = TRUE) %>%
-  filter(rank(desc(n)) < 5) %>%
-  # Change the fill name to the actual product
-  ggplot(aes(x = CENTER, y = n, fill = factor(US_TITLE))) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  labs(title = "Washington Centers by Primary Resource",
-       x = "Center",
-       y = "Count of Reports for Energy of that Type",
-       fill = "NAICS Code"
-       )
-```
-
+## Number of Assessments by State
 ```{r}
 
 state_lookup <- data.frame(
@@ -317,6 +242,128 @@ print(choropleth_map)
 
 ```
 
+
+
+## Energy Costs by Center Across the USA
+
+```{r}
+# Bar Plot of Total Energy Costs by Plant
+# Calculate total energy costs for each center
+energy_cost_columns <- c("EC_plant_cost", "E2_plant_cost", "E3_plant_cost", "E4_plant_cost", "E5_plant_cost", 
+                         "E6_plant_cost", "E7_plant_cost", "E8_plant_cost", "E9_plant_cost", "E10_plant_cost", 
+                         "E11_plant_cost", "E12_plant_cost")
+joined_frames %>% 
+  filter(is.na(PSAVED)) %>% 
+  nrow()
+
+total_saving <- data_frames[["ASSESS"]] %>%
+  filter(!is.na(STATE)) %>% 
+  group_by(ID) %>%
+  mutate(total_saving = sum(EC_plant_cost, E2_plant_cost, E3_plant_cost, E4_plant_cost, E5_plant_cost, 
+                         E6_plant_cost, E7_plant_cost, E8_plant_cost, E9_plant_cost, E10_plant_cost, 
+                         E11_plant_cost, E12_plant_cost, na.rm = TRUE))
+
+
+total_saving <-  total_saving %>%
+  group_by(STATE) %>%
+  summarize(TOTALPSAVED = mean(total_saving))
+
+  
+total_saving %>% 
+  ggplot(aes(x = STATE, y = TOTALPSAVED, fill = STATE == "WA")) +
+  geom_bar(stat = "identity", size = 1, position = position_dodge2()) +
+  labs(title = "Average Energy Cost by State",
+       x = "State",
+       y = "Average Energy Cost", 
+       fill = "Washington") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 5)) +
+  theme(legend.position = "none") +
+  scale_y_continuous(labels = label_dollar())
+  
+# +
+#   scale_fill_gradient(low = "purple", high = "gold", na.value = "grey")
+```
+
+```{r}
+# NEed to tinker, only considers primary resource
+total_saving_WA <- joined_frames %>%
+  filter(STATE == "WA") %>% 
+  select(CENTER, PSAVED) %>%
+  group_by(CENTER) %>%
+  summarize(TOTALPSAVED = mean(PSAVED, na.rm = TRUE)) %>%
+  filter(TOTALPSAVED > 0)
+
+total_saving_WA %>% 
+  ggplot(aes(x = CENTER, y = TOTALPSAVED)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Average Energy Costs by Centers in Washington",
+       x = "Center",
+       y = "Total Energy Cost") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = label_dollar()) 
+  
+```
+<!-- # ```{r} -->
+<!-- # # Using only the asessments found in washington -->
+<!-- # joined_frames %>%  -->
+<!-- #   filter(STATE == "WA") %>% -->
+<!-- #   select(CENTER, PSOURCCODE) %>%  -->
+<!-- #   group_by(CENTER) %>%  -->
+<!-- #   #count(PSOURCCODE, na.rm = TRUE) %>%  -->
+<!-- #   # Need a little help on this one, need the amounts on the side -->
+<!-- #   ggplot(aes(x = factor(CENTER), y = PSOURCCODE, fill = PSOURCCODE)) + -->
+<!-- #   geom_bar(stat = "identity", , position = position_dodge()) + -->
+<!-- #   labs(title = "Washington Centers by Primary Savings", -->
+<!-- #        x = "Center", -->
+<!-- #        y = "Total PRimary Energy Savings") + -->
+<!-- #   #scale_fill_manual(values = c("purple", "gold"), scale = PSOURCCODE) -->
+<!-- #   theme_minimal() + -->
+<!-- #   theme(axis.text.x = element_text(angle = 45, hjust = 1)) -->
+<!-- #    -->
+<!-- # ``` -->
+
+```{r}
+# joined_frames %>% 
+#   filter(STATE == "WA") %>% 
+#   group_by(CENTER) %>% 
+#   count(PSOURCCODE, na.rm = TRUE) %>% 
+#   filter(n > 25) %>% 
+#   ggplot(aes(x = CENTER, y = n, fill = PSOURCCODE)) +
+#   geom_bar(stat = "identity", , position = position_dodge()) +
+#   labs(title = "Washington Centers by Primary Resource",
+#        x = "Center",
+#        y = "Count of Reports for Energy of that Type",
+#        )
+#   #scale_fill_manual(values = c("purple", "gold"), scale = PSOURCCODE)
+#   # theme_minimal() +
+#   # theme(axis.text.x = element_text(angle = 45, hjust = 1))
+#   # select(CENTER, PSOURCCODE) %>% 
+#   # summarize(code_count = count(PSOURCCODE, na.rm = TRUE))
+```
+
+```{r}
+# Highest count NAICS code, grouped by Center
+joined_frames %>% 
+  filter(STATE == "WA") %>% 
+  select(CENTER, NAICS, STATE, US_TITLE) %>% 
+  group_by(CENTER) %>%
+  na.omit() %>%
+  count(US_TITLE, na.rm = TRUE) %>%
+  filter(rank(desc(n)) < 5) %>%
+  # Change the fill name to the actual product
+  ggplot(aes(x = CENTER, y = n, fill = factor(US_TITLE))) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(title = "Most Assessed Industries by Centers in Washington",
+       x = "Center",
+       y = "Report Count",
+       fill = "Industry"
+       )
+```
+
+
+
 ```{r}
 # Tracking Savings per fiscal year
 joined_frames %>% 
@@ -325,9 +372,9 @@ joined_frames %>%
   filter(!is.na(SALES)) %>% 
   group_by(CENTER, FY) %>%
   summarize(SALES_TOTAL = sum(SALES)) %>%
-  ggplot(aes(x = FY, y = SALES_TOTAL, color = CENTER)) +
-  geom_point(stat = "identity", size = 2) +
-  ggtitle("Total Yearly Sales from Companies \nAssessed by Washington Based Centers") +
+  ggplot(aes(x = FY, y = SALES_TOTAL, fill = CENTER)) +
+  geom_bar(stat = "identity", size = 2) +
+  ggtitle("Total Yearly Sales by Companies \nAssessed by Washington Based Centers") +
   labs(x = "Fiscal Year",
        y = "Total Yearly Sales",
        fill = "Assesment Center"
@@ -335,28 +382,15 @@ joined_frames %>%
   scale_y_continuous(labels = label_dollar()) +
   theme(text = element_text(size=15))
 ```
-
 ```{r}
-# Tracking Savings per fiscal year
-# saving_noNA <- joined_frames 
-# saving_noNA <- saving_noNA %>% 
-#   replace(is.na('PSAVED'), 0) %>% 
-#   replace(is.na('SSAVED'), 0) %>% 
-#   replace(is.na('TSAVED'), 0) %>% 
-#   replace(is.na('QSAVED'), 0)
-# # saving_noNA <- replace(saving_noNA, is.na('SSAVED'), 0)
-# # saving_noNA <- replace(saving_noNA, is.na('TSAVED'), 0)
-# # saving_noNA <- replace(saving_noNA, is.na('QSAVED'), 0)
-# saving_noNA
-
 joined_frames %>% 
   filter(STATE == "WA") %>% 
   select(SUPERID, ID, NAICS, CENTER, FY, PSAVED, SSAVED, TSAVED, QSAVED) %>% 
-  group_by(FY, CENTER) %>% 
-  mutate(TOTAL_SAVED = sum(PSAVED, SSAVED, TSAVED, QSAVED, na.rm = TRUE)) %>% 
+  group_by(CENTER, FY) %>% 
+  mutate(TOTAL_SAVED = sum(PSAVED, SSAVED, TSAVED, QSAVED, na.rm = TRUE)) %>%
   ggplot(aes(x = FY, y = TOTAL_SAVED, fill = CENTER)) +
   geom_bar(stat = "identity", size = 2) +
-  labs(title = "Total Saved",
+  labs(title = "Total Costs Savings from Reccomendations for \nCompanies Assessed by Washington Based Centers",
        x = "Fiscal Year",
        y = "Total Yearly Savings Over All Resources",
        fill = "Assesment Center"
@@ -364,45 +398,26 @@ joined_frames %>%
   scale_y_continuous(labels = label_dollar()) +
   theme(text = element_text(size=15))
 ```
-
+## Earning back a percentage of their revenue in Savings
 ```{r}
-library(dplyr)
-library(ggplot2)
-
-# Complete pipeline from data preparation to plotting
-joined_frames %>%
-  # Calculate total savings per recommendation
-  mutate(Total_Savings = PSAVED + SSAVED + TSAVED + QSAVED) %>%
-  # Group by industry and recommendation code, sum savings
-  group_by(US_TITLE, ARC2) %>%
-  summarise(Total_Savings = sum(Total_Savings, na.rm = TRUE), .groups = 'drop') %>%
-  # Identify top 5 industries by total savings
-  group_by(US_TITLE) %>%
-  summarise(Industry_Total_Savings = sum(Total_Savings, na.rm = TRUE)) %>%
-  top_n(5, Industry_Total_Savings) %>%
-  # Extract top 5 industry names
-  pull(US_TITLE) %>%
-  # Re-filter original data to include only these top 5 industries
-  { filter(joined_frames, US_TITLE %in% .) %>%
-    # Make sure to re-calculate total savings
-    mutate(Total_Savings = PSAVED + SSAVED + TSAVED + QSAVED)
-  } %>%
-  # Recalculate savings per ARC2 within these top industries
-  group_by(US_TITLE, ARC2) %>%
-  summarise(Total_Savings = sum(Total_Savings, na.rm = TRUE), .groups = 'drop') %>%
-  # Get top 10 recommendations by total savings within these industries
-  top_n(10, Total_Savings) %>%
-  # Prepare data for plotting
-  # Plotting
-  ggplot(aes(x = factor(US_TITLE), y = Total_Savings, fill = US_TITLE)) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  labs(title = "Top 10 Recommendations by Savings Across Top 5 Industries",
-       x = "Recommendation Code", y = "Total Savings", fill = "Industry") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-
+joined_frames %>% 
+  filter(STATE == "WA") %>% 
+  select(CENTER, FY, PSAVED, SSAVED, TSAVED, QSAVED, SALES) %>% 
+  group_by(CENTER, FY) %>% 
+  mutate(TOTAL_SAVED = sum(PSAVED, SSAVED, TSAVED, QSAVED, na.rm = TRUE)) %>%
+  mutate(SALES_TOTAL = sum(SALES, na.rm = TRUE)) %>%
+  mutate(SAVED_TO_SALES = TOTAL_SAVED/SALES_TOTAL) %>% 
+  ggplot(aes(x = FY, y = SAVED_TO_SALES, fill = CENTER)) +
+  geom_bar(stat = "identity", size = 2) +
+  labs(title = "Savings as Percentage of Sales",
+       x = "Fiscal Year",
+       y = "Total Yearly Savings Over All Resources",
+       fill = "Assesment Center"
+       ) +
+  #scale_y_continuous(labels = label_dollar()) +
+  theme(text = element_text(size=15))
 ```
+
 
 ```{r}
 library(dplyr)
@@ -413,7 +428,7 @@ Top5groups <- joined_frames %>%
   filter(!is.na(US_TITLE), !is.na(NAICS)) %>%
   count(US_TITLE) %>%
   arrange(desc(n)) %>%
-  slice_head(n = 2)
+  slice_head(n = 5)
 
 # Prepare data for graphing, including only top five recommendations per industry
 graphed <- joined_frames %>%
