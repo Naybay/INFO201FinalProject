@@ -303,6 +303,8 @@ graphed <- joined_frames %>%
   ungroup() %>%
   mutate(ARC2 = factor(ARC2))  # Factor conversion here for better control
 
+unique(graphed$US_TITLE)
+
 # Create the plot
 ggplot(graphed, aes(x = ARC2, y = TOTAL_SAVED, fill = Description)) +
   geom_bar(stat = "identity", position = position_dodge()) +
