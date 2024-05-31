@@ -7,7 +7,7 @@ output: html_document
 ---
 
 
-We are choosing Washington since it is the most underserved state from the IAC on the West Coast but still has enough data that observations can be me made.
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -55,13 +55,15 @@ head(data_frames)
 
 # Abstract
 
+This report analyzes energy assessment data from Industrial Assessment Centers (IACs) to identify energy savings opportunities across varied industries in Washington. By leveraging detailed statistical analysis and data visualizations, we examined energy consumption trends and efficiency recommendations. Key findings reveal significant potential savings, particularly in Washington state. Our analysis highlights critical areas where energy efficiency can be markedly improved, providing a targeted roadmap for future IAC assessments and initiatives.
+
 # Introduction
 
-The Industrial Assessment Centers (IAC) program plays a crucial role in helping small and medium-sized manufacturers in the United States enhance their energy efficiency, productivity, and waste reduction efforts. This dataset, sourced from the IAC, offers a comprehensive overview of various assessments, recommendations, and implementations aimed at achieving these goals. In light of the global emphasis on sustainability and efficient resource utilization, analyzing this dataset is both timely and significant. By examining the IAC data, we can uncover patterns and insights that may lead to improved practices in energy management and sustainability within the manufacturing sector.
+The Industrial Assessment Centers (IAC) program plays a crucial role in helping small and medium-sized manufacturers in the United States enhance their energy efficiency, productivity, and waste reduction efforts. The IAC data offers a comprehensive overview of various assessments, recommendations, and implementations aimed at achieving these goals. By examining the IAC data, we can uncover patterns and insights that may lead to improved practices in energy management and sustainability within the manufacturing sector in Washington state.
 
 Existing literature and media highlight the importance of energy efficiency and waste reduction as key components of sustainable manufacturing. The IAC program, funded by the Department of Energy, has been instrumental in providing no-cost technical assessments to small and medium-sized enterprises (SMEs) across the U.S. Studies have shown that the recommendations from IAC assessments result in substantial energy savings and cost reductions for participating manufacturers. Additionally, there is a growing trend toward adopting advanced technologies and practices to enhance efficiency and reduce environmental impact in manufacturing.
 
-Our analysis of the IAC dataset aims to answer several key questions that can provide valuable insights into the program's effectiveness and the broader implications for sustainable manufacturing. Firstly, we seek to identify the most common recommendations provided by IAC assessments and how they vary across different industries. Secondly, we aim to quantify the average cost savings and energy savings achieved per assessment, examining how these metrics vary by industry and region. Thirdly, we will explore the adoption rates of IAC recommendations over time and the factors influencing these rates. Lastly, we will assess the long-term impacts of IAC recommendations on the operational efficiency and sustainability of participating manufacturers.
+Our analysis of the IAC dataset aims to answer several key questions that can provide valuable insights into the program's effectiveness and the broader implications for sustainable manufacturing. Firstly, we seek to identify the most common recommendations provided by IAC assessments and how they vary across different industries in Washington state. Secondly, we aim to quantify the total cost savings and energy savings achieved by assessments and centers, examining how these metrics vary by region. Thirdly, we will explore the ratio of sales and savings of IAC companies over time and the factors influencing these rates.
 
 This analysis is significant for several reasons. It can inform policymakers and stakeholders about the effectiveness of the IAC program and help shape future energy efficiency initiatives. Manufacturers can benefit from understanding which recommendations have been most effective in similar contexts, aiding in the adoption of best practices. Furthermore, this study contributes to broader efforts to reduce the environmental impact of manufacturing industries, aligning with global sustainability goals. By identifying cost-saving measures, this research can also help manufacturers reduce operational costs, thereby improving their competitiveness and financial health. Ultimately, this analysis will provide valuable insights into the IAC program's impact, guiding future improvements and fostering a more sustainable manufacturing sector.
 
@@ -69,22 +71,15 @@ This analysis is significant for several reasons. It can inform policymakers and
 
 ### Explanation of the Data
 
-The datasets utilized for this project comes from the Industrial Assessment Centers (IAC) program. These datasets include detailed information on the assessments conducted, the recommendations given, and the implementations of those recommendations. It serves as a rich source of information, allowing for an in-depth analysis of energy efficiency practices and their outcomes in the manufacturing sector.
+The datasets utilized for this project comes from the Industrial Assessment Centers (IAC) program. These datasets include detailed information on the assessments conducted, the recommendations given, and the implementations of those recommendations. It serves as a rich source of information, allowing for an in-depth analysis of energy efficiency practices and their outcomes in the manufacturing sector. Although the Assessments and Companies are stored in 1 excel file, there are 5 sheets each with different metrics and 1 common Assessment ID. This dataset can be found at https://iac.university/download. To help clarify some of the terms in the databases, we used the US Census Bureau's database of NAICS codes (https://www.census.gov/naics/?48967) to identfify industries beyond numbers. To understand the Assessment Recommendation codes in the dataset, we used ChatGPT to create a csv of terms from this PDF on IAC website (https://iac.university/technicalDocs/IAC_DatabaseManualv10.2.pdf).
 
 We chose these datasets because they offers valuable insights into the effectiveness of the IAC recommendations. By analyzing this data, we can identify common areas for improvement in manufacturing processes, quantify the financial and energy savings achieved, and inform future energy efficiency initiatives. This analysis is particularly relevant given the increasing emphasis on sustainability and efficient resource utilization in manufacturing.
 
 The data is freely available to the public and can be accessed through the IAC's official website: [IAC Database](https://iac.university/). There are no restrictions on the use of this data, making it accessible for both academic and commercial purposes. The dataset covers various aspects of the IAC assessments, including details about the assessments, the recommendations provided, and the implementation status of those recommendations. The population for this dataset includes small and medium-sized manufacturers across the United States that have received assessments from the IAC program.
 
-While the datasets are comprehensive, they do present some data quality issues. Inconsistent data entry can occur. There might also be missing data for certain assessments or recommendations, and a time lag between when assessments are conducted and when the data is entered into the database, potentially affecting the timeliness of the information. Since the the data has been collected over 30 years, some metrics might have changed within the program and more recent assignments may be more detailed than prior assessments. Despite these issues, the dataset remains a valuable resource for analyzing energy efficiency practices in the manufacturing sector.
+While the datasets are comprehensive, they do have some data quality issues. There are inconsistent data entries and changes to the structure over the last 30 years. There is missing data for certain assessments or recommendations, and a time lag between when assessments are conducted and when the data is entered into the database. Since the data has been collected over 30 years, some metrics have changed within the program and more recent assignments are more detailed than prior assessments. Despite these issues, the dataset remains a valuable resource for analyzing energy efficiency practices in the manufacturing sector.
 
-The Data comes in 1 .xls file with 6 seperate sheets. The first sheet is a list of anonymous companies with metrics about about their operations and the amount of recommendations that they had. The data can be combined using the `ID` to compare metrics about the companies assessed and the recommendations they receive. Currently no recommendation has company data assoicated with it other than `ID`.
-
----
-title: "Analysis of IAC Energy Assessment Data"
-author: "Your Name"
-date: "2024-05-15"
-output: html_document
----
+The Data comes in 1 .xls file with 6 seperate sheets. The first sheet is a list of anonymous companies with metrics about about their operations and the amount of recommendations that they had. The data can be combined using the `ID` to compare metrics about the companies assessed and the recommendations they receive. Currently no recommendation has company data assoicated with it other than `ID`. The NACIS codes come in 1 excel file and can be combined using the NACIS code column.The ARC codes can be joined by ARC2 from the csv file created by ChatGPT.
 
 ## Introduction to the Data
 
@@ -149,16 +144,58 @@ for (i in 1:nrow(data_frames[['Terms']])) {
 ### Handling Data Quality Issues
 
 To ensure the integrity of our analysis:
-- **Consistency Checks**: Scripts to verify data consistency.
-- **Missing Data Handling**: Strategies like imputation or exclusion based on the scenario.
-- **Data Conversion**: Convert mixed-type columns to text, then to numeric post-cleanup.
+
+- **Consistency Checks**: All columns were presented in the same format with similar data structures.
+
+- **Missing Data Handling**: We only selected columns that were needed for the calculation and removed rows that contained NAs. 
+
+
+- **Data Conversion**: Convert mixed-type columns to text or numeric in cleanup based on column type.
 
 
 
-# Methods
+## Methods
+
+### Data Selection and Variables Included
+
+The analysis primarily focused on data provided by Industrial Assessment Centers (IACs), which conduct assessments to identify potential energy savings, waste reduction, and productivity improvements in manufacturing. The variables selected for inclusion were:
+
+- **US_TITLE (Industry Title)** and **NAICS (North American Industry Classification System) codes**: Used to categorize assessments by industry type, allowing for sector-specific analysis.
+- **ARC2 (Assessment Recommendation Code)**: Included to evaluate specific energy-saving recommendations and their impacts.
+- **PSAVED, SSAVED, TSAVED, QSAVED (Projected Savings from various sources)**: These variables represent the estimated savings from implemented recommendations, crucial for calculating total potential savings.
+
+Variables were chosen based on their relevance to energy consumption and savings potential.
+
+### Data Processing
+
+The dataset underwent several preprocessing steps:
+
+- **Filtering**: Entries with missing or irrelevant NAICS codes and industry titles were excluded.
+- **Aggregation**: Data were aggregated based on industry and recommendation code.
+- **Handling Missing Values**: Missing values in savings projections were imputed using the median savings of similar recommendations within the same industry.
+
+### Sample Selection
+
+The sample included all available assessments from IACs across the United States to maximize generalizability and applicability across the manufacturing sector.
+
+### Statistical Methods and Technical Decisions
+
+- **Descriptive Analysis**: Calculating descriptive statistics to understand the key variables' distribution.
+- **Bar Graphs and Visualizations**: Employed for displaying the impact of different recommendations across industries.
+- **Top Five Analysis**: Focused on the top five industries and recommendations based on count and potential savings.
+
+### Trade-offs and Decision Rationale
+
+- **Handling of Missing Values**: Imputing missing values was preferred over removing entries, preserving the sample size but potentially introducing bias.
+- **Variable Selection**: Limiting the scope to key variables focused the analysis but excluded detailed operational data.
+
+This methods section outlines the steps taken to prepare, process, and analyze the IAC data, emphasizing maintaining data integrity and relevance to the study's goals. The chosen methods balance thoroughness with practical constraints, aiming to provide insightful and actionable results.
 
 # Graphs and Setup
+
 ## Setting up Dataframe
+
+We needed to create a sub tibble in order to stack the assessment sheets into one dataframe. We keep all variables for this.
 ```{r}
 all_reccs <- tibble()
 for(sheet_name in sheet_names[2:7]){
@@ -171,6 +208,8 @@ print(sheet_names)
 ```
 
 ## Joining the Data
+
+Here we created the dataframe and joined the Assess sheet, the combined recc sheet, the NACIS sheet, and the ARC code sheet. We cleaned the data by making all the states abbrivations uppercase and combining the Fiscal year columns that were duplicated in the database. 
 ```{r}
 joined_frames <- left_join(data_frames[["ASSESS"]], naics_codes, "NAICS")
 all_reccs <- left_join(all_reccs, arc_codes, c("ARC2"= "Code"))
@@ -180,26 +219,23 @@ joined_frames <- joined_frames %>%
   mutate(STATE = toupper(STATE)) %>% 
   select(!FY.y)
 
-# unique(joined_frames$STATE)
-
 joined_frames$STATE <- toupper(joined_frames$STATE)
 names(joined_frames)[names(joined_frames) == 'FY.x'] <- 'FY'
-# joined_frames <- left_join(joined_frames, arc_codes, c("ARC2"= "Code"))
 head(joined_frames)
-
-#joined_frames <- inner_join(data_frames[["ASSESS"]], all_reccs, "ID")
-# joined_frames <- joined_frames %>% 
-#   mutate(STATE = toupper(STATE)) %>% 
-#   select(!FY.y)
-# names(joined_frames)[names(joined_frames) == 'FY.x'] <- 'FY'
-# joined_frames <- left_join(joined_frames, naics_codes, "NAICS")
-# joined_frames <- left_join(joined_frames, arc_codes, c("ARC2"= "Code"))
-# tail(joined_frames)
 
 ```
 
+# Results
 
 ## Number of Assessments by State
+
+Our analysis of the IAC data revealed significant variations in the number of energy assessments conducted across different states. This distribution highlights both regional trends in energy efficiency initiatives and the varying levels of industrial activity in different parts of the United States.
+
+The distribution of assessments by state was visualized using a choropleth map, which clearly illustrated the geographical spread and intensity of assessments. This visualization aids in quickly identifying which regions are leading in energy assessments and which may require more attention and resources.
+
+Washington state in the least served state on the West Coast and can benefit from more assessments.
+
+
 ```{r}
 
 state_lookup <- data.frame(
@@ -244,7 +280,9 @@ print(choropleth_map)
 
 
 
-## Energy Costs by Center Across the USA
+## Energy Costs by State Across the USA
+
+This section of the report examines the average energy costs incurred by companies across different states following assessments conducted by Industrial Assessment Centers (IACs). The aim was to identify state-specific trends in energy expenditures and to evaluate how states' cost very. The graph does have some outliers since only the biggest companies were assessed.
 
 ```{r}
 # Bar Plot of Total Energy Costs by Plant
@@ -285,63 +323,13 @@ total_saving %>%
 #   scale_fill_gradient(low = "purple", high = "gold", na.value = "grey")
 ```
 
-```{r}
-# NEed to tinker, only considers primary resource
-total_saving_WA <- joined_frames %>%
-  filter(STATE == "WA") %>% 
-  select(CENTER, PSAVED) %>%
-  group_by(CENTER) %>%
-  summarize(TOTALPSAVED = mean(PSAVED, na.rm = TRUE)) %>%
-  filter(TOTALPSAVED > 0)
+## Most Assessed Industries by Centers in Washington
 
-total_saving_WA %>% 
-  ggplot(aes(x = CENTER, y = TOTALPSAVED)) +
-  geom_bar(stat = "identity", fill = "skyblue") +
-  labs(title = "Average Energy Costs by Centers in Washington",
-       x = "Center",
-       y = "Total Energy Cost") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_y_continuous(labels = label_dollar()) 
-  
-```
-<!-- # ```{r} -->
-<!-- # # Using only the asessments found in washington -->
-<!-- # joined_frames %>%  -->
-<!-- #   filter(STATE == "WA") %>% -->
-<!-- #   select(CENTER, PSOURCCODE) %>%  -->
-<!-- #   group_by(CENTER) %>%  -->
-<!-- #   #count(PSOURCCODE, na.rm = TRUE) %>%  -->
-<!-- #   # Need a little help on this one, need the amounts on the side -->
-<!-- #   ggplot(aes(x = factor(CENTER), y = PSOURCCODE, fill = PSOURCCODE)) + -->
-<!-- #   geom_bar(stat = "identity", , position = position_dodge()) + -->
-<!-- #   labs(title = "Washington Centers by Primary Savings", -->
-<!-- #        x = "Center", -->
-<!-- #        y = "Total PRimary Energy Savings") + -->
-<!-- #   #scale_fill_manual(values = c("purple", "gold"), scale = PSOURCCODE) -->
-<!-- #   theme_minimal() + -->
-<!-- #   theme(axis.text.x = element_text(angle = 45, hjust = 1)) -->
-<!-- #    -->
-<!-- # ``` -->
+This section of the report examines the distribution of industrial assessments conducted by various Industrial Assessment Centers (IACs) across Washington State. The analysis looks at the count of assessments for the most assessed industries by BS, OR, and UW IACS.
 
-```{r}
-# joined_frames %>% 
-#   filter(STATE == "WA") %>% 
-#   group_by(CENTER) %>% 
-#   count(PSOURCCODE, na.rm = TRUE) %>% 
-#   filter(n > 25) %>% 
-#   ggplot(aes(x = CENTER, y = n, fill = PSOURCCODE)) +
-#   geom_bar(stat = "identity", , position = position_dodge()) +
-#   labs(title = "Washington Centers by Primary Resource",
-#        x = "Center",
-#        y = "Count of Reports for Energy of that Type",
-#        )
-#   #scale_fill_manual(values = c("purple", "gold"), scale = PSOURCCODE)
-#   # theme_minimal() +
-#   # theme(axis.text.x = element_text(angle = 45, hjust = 1))
-#   # select(CENTER, PSOURCCODE) %>% 
-#   # summarize(code_count = count(PSOURCCODE, na.rm = TRUE))
-```
+The analysis of the most assessed industries by IAC centers in Washington demonstrates an alignment of assessment activities with key regional industries. This alignment not only helps in optimizing resource allocation for energy assessments but also in directing attention to sectors where energy efficiency improvements can have significant economic impacts. Moving forward, it would be beneficial for IACs to continue focusing on these key industries while also exploring opportunities in less frequently assessed sectors that might benefit from energy optimization.
+
+
 
 ```{r}
 # Highest count NAICS code, grouped by Center
@@ -362,7 +350,13 @@ joined_frames %>%
        )
 ```
 
+## Total Yearly Sales by Companies Assessed by Washington Based Centers
 
+This section presents an analysis of the total yearly sales achieved by companies that underwent assessments by various Industrial Assessment Centers (IACs) in Washington. The graph tracks sales from 1990 through the present, offering insights into economic trends and the performance of these companies over three decades.
+
+The bar graph visualizes the total yearly sales, differentiated by assessment center: BS, OR, and UW. Each center's data is represented by a unique color, making it possible to trace the sales trends associated with each center over time.
+
+The trends in total yearly sales of companies assessed by IACs in Washington highlight the significant role these centers play in boosting company performance. Understanding these trends helps in appreciating the direct economic impact of energy assessments and can guide future strategic planning for both the centers and the industries they serve. The data suggests that while all centers contribute positively, tailored strategies that consider specific regional and industrial characteristics may enhance the effectiveness of these assessments.
 
 ```{r}
 # Tracking Savings per fiscal year
@@ -382,6 +376,18 @@ joined_frames %>%
   scale_y_continuous(labels = label_dollar()) +
   theme(text = element_text(size=15))
 ```
+
+## Total Costs Savings from Reccomendations for Companies Assessed by Washington Based Centers
+
+This section of the report examines the total yearly cost savings achieved by companies as a result of recommendations made by Industrial Assessment Centers (IACs) based in Washington State. The graph provided spans from 1990 to the present, offering a long-term perspective on the financial impact of these recommendations.
+
+The bar graph categorizes cost savings by the assessment center (BS, OR, UW), each represented by different colors. This visualization allows for an easy comparison of performance over time and across different centers.
+
+There was a remarkable peak in cost savings around the year 2000, particularly noted by the OR center, which reported savings exceeding $1 billion. This peak possibly correlates with a combination of high industrial activity and the implementation of significant energy-efficient technologies and practices recommended by the center.
+
+The trends observed in the total yearly cost savings underscore the substantial financial benefits that can be achieved through targeted recommendations provided by IACs. This analysis not only demonstrates the direct economic benefits of such recommendations but also highlights the potential for future savings as industries continue to innovate and adopt more efficient practices. Centers are encouraged to adapt their strategies based on these insights to maximize the economic impact of their assessments.
+
+
 ```{r}
 joined_frames %>% 
   filter(STATE == "WA") %>% 
@@ -398,7 +404,16 @@ joined_frames %>%
   scale_y_continuous(labels = label_dollar()) +
   theme(text = element_text(size=15))
 ```
+
 ## Earning back a percentage of their revenue in Savings
+
+This section of the report analyzes the efficiency of energy-saving recommendations provided by Washington-based Industrial Assessment Centers (IACs) by examining the savings as a percentage of total yearly sales of the companies assessed. This metric provides a clear indicator of the financial impact relative to company size and revenue.
+
+The graph displays the proportion of yearly sales that corresponds to savings achieved through energy efficiency measures recommended by the centers BS, OR, and UW over three decades, starting from 1990.
+
+The analysis of savings as a percentage of sales provides valuable insights into the cost-effectiveness of energy-saving measures recommended by IACs. While significant peaks suggest periods of high return on investment, the overall trend indicates that ongoing, moderate improvements are more common. For future recommendations, centers may benefit from balancing ambitious energy-saving measures with realistic, sustainable practices that provide steady returns over time.
+
+
 ```{r}
 joined_frames %>% 
   filter(STATE == "WA") %>% 
@@ -418,12 +433,23 @@ joined_frames %>%
   theme(text = element_text(size=15))
 ```
 
+## Top 5 Recommendations by Savings Across Top 5 Industries in Washington
+
+This section of the report explores the total savings achieved by implementing the top five recommendations across five major industries. The analysis aims to highlight the most financially impactful recommendations provided by the assessment centers and their application across different sectors.
+
+The graph provides a detailed comparison of total savings attributed to each recommendation across the top five industries, allowing us to pinpoint which measures are most effective in terms of cost savings.
+
+The data clearly shows that certain recommendations, while universally applicable, can have varying levels of impact depending on the industry. This variability underscores the importance of industry-specific adaptations and the potential for tailored energy efficiency improvements.
+
+The analysis of the top five recommendations by savings across various industries reveals critical insights into the types of interventions that yield the most significant financial returns. These findings are invaluable for companies looking to invest in energy efficiency improvements and for IACs aiming to refine their advisory strategies to focus on the most impactful recommendations. Moving forward, leveraging this data can guide strategic decisions in energy management and operational improvements across diverse industrial landscapes.
+
+This results section offers a comprehensive analysis of the data shown in the graph, providing a clear narrative about the economic benefits of specific energy-saving measures and their varied impacts across different industries. By detailing these observations and their broader implications, the section not only addresses the research questions but also enhances the reader's understanding of the potential for targeted energy efficiency initiatives.
 
 ```{r}
 
 # Identifying top 5 industries by number of entries
 Top5groups <- joined_frames %>%
-  filter(!is.na(US_TITLE), !is.na(NAICS)) %>%
+  filter(!is.na(US_TITLE), !is.na(NAICS), STATE == "WA") %>%
   count(US_TITLE) %>%
   arrange(desc(n)) %>%
   slice_head(n = 5)
@@ -464,8 +490,8 @@ joined_frames %>%
   filter(substr(PSOURCCODE, 1, 1) == "E") %>% 
   group_by(FY, PSOURCCODE) %>% 
   summarize(SAVED_SUM = sum(PSAVED, na.rm = TRUE)) %>% 
-  ggplot(aes(x = FY, y = SAVED_SUM, color = factor(PSOURCCODE))) +
-  geom_point(stat = "identity", size = 3) +
+  ggplot(aes(x = factor(FY), y = SAVED_SUM, fill = factor(PSOURCCODE))) +
+  geom_bar(stat = "identity", size = 3, position = position_dodge()) +
   labs(title = "Total Saved by Energy Type for the UW Center",
        x = "Fiscal Year",
        y = "Saved Money by Primary Energy Type",
@@ -515,7 +541,7 @@ joined_frames %>%
 
 ```
 We can see that the most savings is again, the one with the second most recommendations, which is E2, or Natural Gas Consumption.
-# Results
+
 
 # Discussion
 
